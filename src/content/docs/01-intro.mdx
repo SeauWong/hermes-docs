@@ -1,0 +1,61 @@
+---
+title: "Hermes Agent 自我提升机制解读"
+description: "深入解析 Hermes 如何通过技能固化、记忆系统和上下文压缩实现自我进化"
+order: 1
+---
+
+import Mermaid from '../../components/Mermaid.astro';
+
+# Hermes Agent 自我提升机制
+
+Hermes 的“自我提升”并不是科幻电影里的那种全自动觉醒，而是通过一套**极其精密的工程机制**，让 AI 在每次交互中积累经验、优化自身行为。
+
+这套系统主要由三个核心模块组成：
+
+## 1. 技能固化系统 (Skill Creation)
+
+Hermes 不会默默地把经验留在聊天记录里，而是会尝试把它变成一个新的“技能”。
+
+<Mermaid chart={`
+sequenceDiagram
+    participant User as 用户
+    participant Agent as Hermes Agent
+    participant Disk as 磁盘 (SKILL.md)
+    
+    User->>Agent: 执行复杂任务
+    Agent->>Agent: 检查 _skill_nudge_interval
+    Agent->>Agent: 调用 skill_manage(create)
+    Agent->>Disk: 写入技能文件
+    Disk-->>Agent: 确认保存
+    Agent->>Agent: clear_skills_system_prompt_cache()
+    Agent-->>User: 任务完成，技能已保存
+`} />
+
+*   **触发机制**：在 `run_agent.py` 中有一个 `_skill_nudge_interval`（默认每 10 轮对话），系统会暗示模型：“如果你刚才解决了一个复杂问题，或者发现了一个新技巧，请使用 `skill_manage` 工具把它保存下来。”
+*   **实现方式**：模型调用 `skill_manage(action="create")`，将解决问题的步骤写入 `~/.hermes/skills/<category>/<name>/SKILL.md`。
+*   **即时生效**：保存后，系统会调用 `clear_skills_system_prompt_cache()`，确保下一次对话时，这个新技能就会出现在模型的工具列表中。
+
+## 2. 双层记忆架构 (Memory System)
+
+Hermes 的记忆分为“程序性记忆”（技能）和“陈述性记忆”（事实/偏好）。
+
+*   **文件级记忆 (MEMORY.md & USER.md)**：
+    *   `MEMORY.md`：记录环境配置、项目规范、工具 quirks。
+    *   `USER.md`：记录用户的沟通风格、工作习惯。
+    *   **防缓存破坏**：为了保持 API 缓存命中，Hermes 在会话开始时会加载一个“记忆快照”（Snapshot）。会话中产生的新记忆会写入文件，但不会改变当前会话的 Prompt，直到下一次会话开始才会刷新。
+*   **SQLite 全文搜索 (FTS5)**：
+    *   所有的历史对话都存储在 SQLite 中，并开启了 FTS5 全文索引。
+    *   当你问“我上周让你改的那个 bug 是怎么解决的？”时，模型会通过 `session_search` 工具进行跨会话检索，找回之前的解决方案。
+
+## 3. 上下文压缩引擎 (Context Compressor)
+
+当对话过长超过模型窗口限制时，Hermes 不会直接报错，而是启动**有损压缩**。
+
+*   **保护头尾**：它永远不会压缩最初的几条消息（包含系统提示和初始设定）和最近的几条消息（保持当前话题连贯）。
+*   **辅助模型总结**：它会调用一个独立的**辅助 LLM**（Auxiliary Client，通常用便宜的小模型）来总结中间的对话。
+*   **结构化摘要**：总结不是简单的缩写，而是包含“目标、已完成、阻塞点、关键决策、待办事项”的结构化报告。
+*   **迭代更新**：如果对话继续变长，它会基于上一次的摘要进行“增量更新”，而不是从头重写，确保信息不丢失。
+
+---
+
+> **总结**：Hermes 的成长在于它能把**“一次性的对话”转化为“持久化的技能”**，并且拥有极强的**容错能力**。它不是自己在改代码，而是**自己在改“教材”**。
