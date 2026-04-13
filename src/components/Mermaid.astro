@@ -12,21 +12,34 @@ const id = `mermaid-${Math.random().toString(36).slice(2, 9)}`;
 </div>
 
 <script>
-  import mermaid from 'mermaid';
+  const renderMermaidDiagrams = async () => {
+    const nodes = document.querySelectorAll('.mermaid');
+    if (nodes.length === 0) {
+      return;
+    }
 
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
-    securityLevel: 'loose',
-  });
+    const { default: mermaid } = await import('mermaid');
 
-  document.querySelectorAll('.mermaid').forEach(async (el) => {
-    const { svg } = await mermaid.render(
-      'm-' + Math.random().toString(36).slice(2, 9),
-      el.textContent || ''
-    );
-    el.parentElement.innerHTML = svg;
-  });
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+      securityLevel: 'loose',
+    });
+
+    for (const el of nodes) {
+      const { svg } = await mermaid.render(
+        'm-' + Math.random().toString(36).slice(2, 9),
+        el.textContent || ''
+      );
+
+      const container = el.parentElement;
+      if (container) {
+        container.innerHTML = svg;
+      }
+    }
+  };
+
+  renderMermaidDiagrams();
 </script>
 
 <style>
