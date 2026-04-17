@@ -1,0 +1,1086 @@
+---
+layout: false
+isPage: true
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GEA — 群体进化智能体</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
+    <style>
+      /* === Reset & Base === */
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      /* === Typography === */
+      @font-face {
+        font-family: 'Display';
+        src: local('Inter'), local('-apple-system'), local('PingFang SC'), local('Noto Sans SC'), local('Arial');
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: 'Text';
+        src: local('Inter'), local('-apple-system'), local('PingFang SC'), local('Noto Sans SC'), local('Arial');
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'Text';
+        src: local('Inter'), local('-apple-system'), local('PingFang SC'), local('Noto Sans SC'), local('Arial');
+        font-weight: 500;
+      }
+
+      :root {
+        --electric-blue: #3E6AE1;
+        --pure-white: #FFFFFF;
+        --carbon-dark: #171A20;
+        --graphite: #393C41;
+        --pewter: #5C5E62;
+        --silver-fog: #8E8E8E;
+        --cloud-gray: #EEEEEE;
+        --pale-silver: #D0D1D2;
+        --light-ash: #F4F4F4;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-snap-type: y proximity;
+      }
+
+      body {
+        font-family: 'Text', -apple-system, 'PingFang SC', 'Noto Sans SC', Arial, sans-serif;
+        font-weight: 400;
+        color: var(--graphite);
+        background: var(--pure-white);
+        line-height: 1.43;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* === Navigation === */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 24px;
+        transition: background-color 0.33s, backdrop-filter 0.33s;
+      }
+
+      .nav.scrolled {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      .nav-logo {
+        position: absolute;
+        left: 24px;
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--pure-white);
+        text-decoration: none;
+        transition: color 0.33s;
+      }
+
+      .nav.scrolled .nav-logo {
+        color: var(--carbon-dark);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+      }
+
+      .nav-links a {
+        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--pure-white);
+        text-decoration: none;
+        padding: 4px 16px;
+        border-radius: 4px;
+        transition: color 0.33s, background-color 0.33s;
+      }
+
+      .nav.scrolled .nav-links a {
+        color: var(--carbon-dark);
+      }
+
+      .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .nav.scrolled .nav-links a:hover {
+        background: var(--light-ash);
+      }
+
+      /* === Section Base === */
+      .section {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 24px;
+        scroll-snap-align: start;
+        position: relative;
+      }
+
+      .section--dark {
+        background: var(--carbon-dark);
+        color: var(--pure-white);
+      }
+
+      .section--light {
+        background: var(--pure-white);
+      }
+
+      .section--ash {
+        background: var(--light-ash);
+      }
+
+      .section__content {
+        max-width: 1383px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .section__title {
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: normal;
+        color: var(--carbon-dark);
+      }
+
+      .section__subtitle {
+        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.43;
+        color: var(--pewter);
+        margin-top: 16px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .section--dark .section__title { color: var(--pure-white); }
+      .section--dark .section__subtitle { color: rgba(255, 255, 255, 0.7); }
+
+      /* === Hero Section === */
+      .hero {
+        background: var(--carbon-dark);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 60% at 50% 40%, rgba(62, 106, 225, 0.15) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 40% at 30% 60%, rgba(62, 106, 225, 0.08) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 40% at 70% 60%, rgba(62, 106, 225, 0.08) 0%, transparent 60%);
+        animation: heroGlow 8s ease-in-out infinite alternate;
+      }
+
+      @keyframes heroGlow {
+        0% { opacity: 0.6; transform: scale(1); }
+        100% { opacity: 1; transform: scale(1.05); }
+      }
+
+      .hero__content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero__label {
+        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 400;
+        font-size: 22px;
+        color: var(--electric-blue);
+        margin-bottom: 8px;
+        opacity: 0.9;
+      }
+
+      .hero__title {
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: clamp(48px, 8vw, 96px);
+        line-height: 1.05;
+        color: var(--pure-white);
+        letter-spacing: normal;
+        opacity: 0.92;
+      }
+
+      .hero__tagline {
+        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(16px, 2vw, 22px);
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 16px;
+        line-height: 1.43;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero__meta {
+        font-size: 14px;
+        color: var(--silver-fog);
+        margin-top: 24px;
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .hero__meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .hero__buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 40px;
+        flex-wrap: wrap;
+      }
+
+      /* === Buttons === */
+      .btn {
+        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 1.2;
+        border-radius: 4px;
+        min-height: 40px;
+        width: 200px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+        border: 3px solid transparent;
+        box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 2px inset;
+        transition: border-color 0.33s, background-color 0.33s, color 0.33s, box-shadow 0.25s;
+      }
+
+      .btn--primary {
+        background: var(--electric-blue);
+        color: var(--pure-white);
+      }
+
+      .btn--primary:hover {
+        background: #3458c4;
+      }
+
+      .btn--secondary {
+        background: var(--pure-white);
+        color: var(--graphite);
+      }
+
+      .btn--secondary:hover {
+        background: var(--light-ash);
+      }
+
+      .btn--outline {
+        background: transparent;
+        color: var(--pure-white);
+        border-color: var(--pure-white);
+      }
+
+      .btn--outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .btn--dark-outline {
+        background: transparent;
+        color: var(--carbon-dark);
+        border-color: var(--carbon-dark);
+      }
+
+      .btn--dark-outline:hover {
+        background: var(--light-ash);
+      }
+
+      /* === Scroll Indicator === */
+      .scroll-indicator {
+        position: absolute;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1;
+        animation: bounce 2s ease-in-out infinite;
+      }
+
+      .scroll-indicator svg {
+        width: 24px;
+        height: 24px;
+        stroke: rgba(255, 255, 255, 0.4);
+        stroke-width: 2;
+        fill: none;
+      }
+
+      @keyframes bounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(8px); }
+      }
+
+      /* === Abstract Section === */
+      .abstract__text {
+        font-size: 18px;
+        line-height: 1.8;
+        color: var(--graphite);
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: left;
+      }
+
+      .abstract__text::first-letter {
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-size: 48px;
+        font-weight: 500;
+        color: var(--electric-blue);
+        float: left;
+        line-height: 1;
+        margin-right: 8px;
+        margin-top: 4px;
+      }
+
+      /* === Concept Cards === */
+      .concepts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 48px;
+      }
+
+      .concept {
+        padding: 40px 32px;
+        text-align: left;
+        transition: background-color 0.33s;
+        border-radius: 12px;
+      }
+
+      .concept__icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 16px;
+        color: var(--electric-blue);
+      }
+
+      .concept__title {
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: 20px;
+        line-height: 1.2;
+        color: var(--carbon-dark);
+        margin-bottom: 12px;
+      }
+
+      .concept__desc {
+        font-size: 14px;
+        line-height: 1.43;
+        color: var(--pewter);
+      }
+
+      /* === Benchmark Section === */
+      .benchmarks {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 48px;
+        margin-top: 64px;
+      }
+
+      .benchmark {
+        text-align: center;
+      }
+
+      .benchmark__value {
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: clamp(48px, 6vw, 72px);
+        line-height: 1;
+        color: var(--electric-blue);
+      }
+
+      .benchmark__label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--carbon-dark);
+        margin-top: 8px;
+      }
+
+      .benchmark__detail {
+        font-size: 13px;
+        color: var(--silver-fog);
+        margin-top: 4px;
+      }
+
+      /* === Bar Chart === */
+      .chart {
+        margin-top: 48px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+
+      .chart__bar-group {
+        margin-bottom: 24px;
+      }
+
+      .chart__bar-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .chart__bar-name {
+        font-weight: 500;
+        color: var(--carbon-dark);
+      }
+
+      .chart__bar-value {
+        font-weight: 500;
+        color: var(--graphite);
+      }
+
+      .chart__bar-track {
+        width: 100%;
+        height: 8px;
+        background: var(--cloud-gray);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .chart__bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.66s cubic-bezier(0.5, 0, 0, 0.75);
+      }
+
+      .chart__bar-fill--primary {
+        background: var(--electric-blue);
+      }
+
+      .chart__bar-fill--secondary {
+        background: var(--pale-silver);
+      }
+
+      /* === Architecture Section === */
+      .arch-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 48px;
+        flex-wrap: wrap;
+      }
+
+      .arch-step {
+        padding: 24px 20px;
+        min-width: 140px;
+        text-align: center;
+        border-radius: 4px;
+        background: var(--pure-white);
+        transition: background-color 0.33s;
+      }
+
+      .arch-step__number {
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: 24px;
+        color: var(--electric-blue);
+        margin-bottom: 8px;
+      }
+
+      .arch-step__title {
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--carbon-dark);
+        margin-bottom: 4px;
+      }
+
+      .arch-step__desc {
+        font-size: 12px;
+        color: var(--pewter);
+      }
+
+      .arch-arrow {
+        color: var(--pale-silver);
+        flex-shrink: 0;
+      }
+
+      .arch-arrow svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* === Timeline === */
+      .timeline {
+        position: relative;
+        max-width: 700px;
+        margin: 48px auto 0;
+        text-align: left;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--cloud-gray);
+      }
+
+      .timeline__item {
+        position: relative;
+        padding-left: 56px;
+        padding-bottom: 32px;
+      }
+
+      .timeline__item:last-child {
+        padding-bottom: 0;
+      }
+
+      .timeline__dot {
+        position: absolute;
+        left: 12px;
+        top: 4px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--pure-white);
+        border: 3px solid var(--electric-blue);
+      }
+
+      .timeline__title {
+        font-weight: 500;
+        font-size: 16px;
+        color: var(--carbon-dark);
+        margin-bottom: 4px;
+      }
+
+      .timeline__desc {
+        font-size: 14px;
+        line-height: 1.43;
+        color: var(--pewter);
+      }
+
+      /* === Comparison === */
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin-top: 48px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .comparison__col {
+        padding: 32px;
+        border-radius: 12px;
+        text-align: left;
+      }
+
+      .comparison__col--old {
+        background: var(--light-ash);
+      }
+
+      .comparison__col--new {
+        background: rgba(62, 106, 225, 0.06);
+      }
+
+      .comparison__label {
+        font-weight: 500;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--silver-fog);
+        margin-bottom: 12px;
+      }
+
+      .comparison__col--new .comparison__label {
+        color: var(--electric-blue);
+      }
+
+      .comparison__heading {
+        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
+        font-weight: 500;
+        font-size: 24px;
+        color: var(--carbon-dark);
+        margin-bottom: 16px;
+      }
+
+      .comparison__item {
+        font-size: 14px;
+        color: var(--graphite);
+        padding: 8px 0;
+        border-bottom: 1px solid var(--cloud-gray);
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .comparison__item:last-child {
+        border-bottom: none;
+      }
+
+      .comparison__check {
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      /* === Footer === */
+      .footer {
+        padding: 48px 24px;
+        text-align: center;
+        border-top: 1px solid var(--cloud-gray);
+      }
+
+      .footer__links {
+        display: flex;
+        gap: 32px;
+        justify-content: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer__link {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--pewter);
+        text-decoration: none;
+        transition: box-shadow 0.33s, color 0.33s;
+      }
+
+      .footer__link:hover {
+        color: var(--carbon-dark);
+      }
+
+      .footer__copy {
+        font-size: 12px;
+        color: var(--silver-fog);
+      }
+
+      /* === Responsive === */
+      @media (max-width: 768px) {
+        .nav-links { display: none; }
+        .hero__buttons { flex-direction: column; align-items: center; }
+        .btn { width: 100%; max-width: 300px; }
+        .concepts { grid-template-columns: 1fr; }
+        .benchmarks { grid-template-columns: 1fr 1fr; }
+        .comparison { grid-template-columns: 1fr; }
+        .arch-flow { flex-direction: column; }
+        .arch-arrow { transform: rotate(90deg); }
+        .hero__meta { flex-direction: column; gap: 8px; align-items: center; }
+      }
+
+      @media (max-width: 480px) {
+        .benchmarks { grid-template-columns: 1fr; }
+      }
+
+      /* === Fade-in animation === */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.66s cubic-bezier(0.5, 0, 0, 0.75),
+                    transform 0.66s cubic-bezier(0.5, 0, 0, 0.75);
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+      <a href="/" class="nav-logo">GEA</a>
+      <ul class="nav-links">
+        <li><a href="#abstract">摘要</a></li>
+        <li><a href="#concepts">核心概念</a></li>
+        <li><a href="#architecture">架构</a></li>
+        <li><a href="#benchmarks">性能</a></li>
+        <li><a href="https://arxiv.org/abs/2602.04837" target="_blank">论文</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="section hero" id="hero">
+      <div class="hero__content">
+        <p class="hero__label">加州大学圣塔芭芭拉分校</p>
+        <h1 class="hero__title">GEA</h1>
+        <p class="hero__tagline">群体进化智能体 — 基于经验共享的开放式自我改进</p>
+        <div class="hero__meta">
+          <span>arXiv:2602.04837</span>
+          <span>2026 年 2 月</span>
+          <span>人工智能 / 多智能体系统</span>
+        </div>
+        <div class="hero__buttons">
+          <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn btn--primary">阅读论文</a>
+          <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn btn--outline">查看代码</a>
+        </div>
+      </div>
+      <div class="scroll-indicator">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+    </section>
+
+    <!-- Abstract -->
+    <section class="section section--light" id="abstract">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">摘要</h2>
+        <p class="section__subtitle" style="margin-bottom: 40px;">这篇论文在说什么</p>
+        <p class="abstract__text">
+          群体进化智能体（GEA）提出了一种全新的 AI 系统开放式自我改进范式。与当前主流框架中将单个智能体作为进化单元的"孤狼"式方法不同，GEA 将一组智能体作为基本的进化单位。组内智能体可以自主修改自身结构设计以提升能力并克服局限。共享的经验池被每一个未来的智能体作为既定事实继承，从而实现了初始探索的多样性并随时间不断演化。在具有挑战性的编码基准测试中，GEA 达到 71.0%，而此前自我进化方法仅为 56.7%；在 SWE-bench 上，GEA 以零额外推理成本匹配了人工工程化的 AI 系统。
+        </p>
+      </div>
+    </section>
+
+    <!-- Core Concepts -->
+    <section class="section section--ash" id="concepts">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">核心概念</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px;">GEA 的三大支柱</p>
+        <div class="concepts">
+          <div class="concept fade-in">
+            <svg class="concept__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="9" cy="7" r="4"/><circle cx="15" cy="7" r="4"/><circle cx="9" cy="17" r="4"/><circle cx="15" cy="17" r="4"/>
+              <line x1="12.5" y1="7" x2="11.5" y2="7"/><line x1="9" y1="10.5" x2="9" y2="13.5"/><line x1="15" y1="10.5" x2="15" y2="13.5"/><line x1="12.5" y1="17" x2="11.5" y2="17"/>
+              <line x1="12" y1="11" x2="12" y2="13"/>
+            </svg>
+            <h3 class="concept__title">群体为单位</h3>
+            <p class="concept__desc">进化作用于群体层面而非个体。智能体被集体生成、评估和替换——更像一个种群，而非孤独的优化器。</p>
+          </div>
+          <div class="concept fade-in">
+            <svg class="concept__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/>
+            </svg>
+            <h3 class="concept__title">经验共享</h3>
+            <p class="concept__desc">共享记忆池积累成功的策略与失败的教训。每一代新智能体都继承群体中所有前代智能体的精华智慧。</p>
+          </div>
+          <div class="concept fade-in">
+            <svg class="concept__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            <h3 class="concept__title">开放式增长</h3>
+            <p class="concept__desc">没有预设的能力目标。系统持续发现新策略并将其纳入自身，实现随时间无止境的自我提升。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paradigm Shift -->
+    <section class="section section--dark">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">范式转换</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px; color: rgba(255,255,255,0.5);">从孤独进化到群体智能</p>
+        <div class="comparison">
+          <div class="comparison__col comparison__col--old">
+            <p class="comparison__label">之前</p>
+            <h3 class="comparison__heading">孤狼智能体</h3>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              单个智能体在孤立中优化
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              探索多样性有限
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              迭代之间的知识丢失
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              收敛到局部最优
+            </div>
+          </div>
+          <div class="comparison__col comparison__col--new">
+            <p class="comparison__label">GEA</p>
+            <h3 class="comparison__heading">群体进化</h3>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              群体协同进化
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              智能体间多样化探索
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              共享经验池持久积累
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              开放式持续改进
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="section section--light" id="architecture">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">架构</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px;">GEA 如何运作 — 进化循环</p>
+        <div class="arch-flow">
+          <div class="arch-step">
+            <div class="arch-step__number">01</div>
+            <div class="arch-step__title">初始化</div>
+            <div class="arch-step__desc">创建多样化的智能体群体，配备不同的提示词与策略</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">02</div>
+            <div class="arch-step__title">执行</div>
+            <div class="arch-step__desc">每个智能体独立尝试目标任务</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">03</div>
+            <div class="arch-step__title">评估</div>
+            <div class="arch-step__desc">根据任务表现和解决方案质量评分</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">04</div>
+            <div class="arch-step__title">共享</div>
+            <div class="arch-step__desc">将成功策略提取到共享经验池中</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">05</div>
+            <div class="arch-step__title">进化</div>
+            <div class="arch-step__desc">淘汰最弱的智能体，用从经验池继承的新智能体替代</div>
+          </div>
+        </div>
+
+        <div class="timeline" style="margin-top: 64px;">
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">经验池</h4>
+            <p class="timeline__desc">一个不断增长的策略、经验教训和成功模式的持久仓库。每个智能体贡献经验，每个新智能体继承积累。</p>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">智能体多样性</h4>
+            <p class="timeline__desc">初始智能体经过刻意多样化设计——不同的系统提示、推理策略和工具使用模式——确保对解空间的广泛初始探索。</p>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">选择压力</h4>
+            <p class="timeline__desc">表现不佳的智能体被替换。新智能体使用经验池指导的变异提示生成，创造出达尔文式的改进动力。</p>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">零推理开销</h4>
+            <p class="timeline__desc">部署时，只有进化出的最优智能体运行。进化过程是离线的——生产使用期间没有额外的推理成本。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benchmarks -->
+    <section class="section section--ash" id="benchmarks">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">性能表现</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px;">相比此前自我进化方法的显著提升</p>
+        <div class="benchmarks">
+          <div class="benchmark">
+            <div class="benchmark__value">71.0%</div>
+            <div class="benchmark__label">编码基准测试</div>
+            <div class="benchmark__detail">GEA 成绩</div>
+          </div>
+          <div class="benchmark">
+            <div class="benchmark__value">56.7%</div>
+            <div class="benchmark__label">此前 SOTA</div>
+            <div class="benchmark__detail">自我进化方法</div>
+          </div>
+          <div class="benchmark">
+            <div class="benchmark__value">+14.3</div>
+            <div class="benchmark__label">绝对提升</div>
+            <div class="benchmark__detail">百分点</div>
+          </div>
+          <div class="benchmark">
+            <div class="benchmark__value">0</div>
+            <div class="benchmark__label">推理开销</div>
+            <div class="benchmark__detail">部署时零额外成本</div>
+          </div>
+        </div>
+
+        <div class="chart fade-in">
+          <div class="chart__bar-group">
+            <div class="chart__bar-label">
+              <span class="chart__bar-name">GEA（群体进化智能体）</span>
+              <span class="chart__bar-value">71.0%</span>
+            </div>
+            <div class="chart__bar-track">
+              <div class="chart__bar-fill chart__bar-fill--primary" style="width: 71%;"></div>
+            </div>
+          </div>
+          <div class="chart__bar-group">
+            <div class="chart__bar-label">
+              <span class="chart__bar-name">自我进化方法（SOTA）</span>
+              <span class="chart__bar-value">56.7%</span>
+            </div>
+            <div class="chart__bar-track">
+              <div class="chart__bar-fill chart__bar-fill--secondary" style="width: 56.7%;"></div>
+            </div>
+          </div>
+          <div class="chart__bar-group">
+            <div class="chart__bar-label">
+              <span class="chart__bar-name">人工工程化系统</span>
+              <span class="chart__bar-value">~71%</span>
+            </div>
+            <div class="chart__bar-track">
+              <div class="chart__bar-fill chart__bar-fill--secondary" style="width: 71%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience Sharing Deep Dive -->
+    <section class="section section--dark">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">经验共享</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px; color: rgba(255,255,255,0.5);">让 GEA 发挥作用的核心机制</p>
+        <div style="max-width: 700px; margin: 0 auto; text-align: left; color: rgba(255,255,255,0.75); font-size: 16px; line-height: 1.8;">
+          <p style="margin-bottom: 24px;">
+            GEA 的核心创新在于<strong style="color: var(--electric-blue); font-weight: 500;">共享经验池</strong>。群体中的每个智能体在成功完成任务时，都会将其策略——推理链条、工具选择和结构决策——贡献到这个共享池中。
+          </p>
+          <p style="margin-bottom: 24px;">
+            当一个新智能体被生成以替代表现不佳者时，它并非从零开始。它<strong style="color: var(--electric-blue); font-weight: 500;">继承了所有先前成功智能体的积累经验</strong>作为既定事实。这与个体自我改进有根本不同——在个体方法中，每一轮迭代只能从自身过去学习。
+          </p>
+          <p>
+            其结果是一种<strong style="color: var(--electric-blue); font-weight: 500;">文化进化</strong>——知识在整个种群中积累，而非仅存在于单一谱系中。这使得 GEA 能够发现并保留单个智能体永远无法独自探索到的多样化策略。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SWE-bench Highlight -->
+    <section class="section section--light">
+      <div class="section__content fade-in" style="text-align: center;">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">SWE-bench</h2>
+        <p class="section__subtitle" style="margin-bottom: 48px;">以零额外成本匹配人工工程化系统</p>
+        <div style="display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif; font-weight: 500; font-size: clamp(72px, 12vw, 128px); line-height: 1; color: var(--electric-blue);">71%</span>
+        </div>
+        <p style="font-size: 18px; color: var(--graphite); margin-top: 16px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+          GEA 在 SWE-bench 上匹配了人工工程化 AI 系统的表现——这是真实世界软件工程任务的金标准基准。
+        </p>
+        <p style="font-size: 14px; color: var(--silver-fog); margin-top: 16px;">
+          部署时零额外推理成本——进化过程在离线完成。
+        </p>
+        <div style="margin-top: 40px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+          <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn btn--primary">阅读论文</a>
+          <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn btn--dark-outline">源代码</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer__links">
+        <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="footer__link">arXiv 论文</a>
+        <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="footer__link">GitHub</a>
+        <a href="https://huggingface.co/papers/2602.04837" target="_blank" class="footer__link">Hugging Face</a>
+        <a href="https://arxiv.org/html/2602.04837v1" target="_blank" class="footer__link">HTML 版本</a>
+      </div>
+      <p class="footer__copy">arXiv:2602.04837 — 加州大学圣塔芭芭拉分校, 2026</p>
+    </footer>
+
+    <script>
+      // Navigation scroll behavior
+      const nav = document.getElementById('nav');
+
+      window.addEventListener('scroll', () => {
+        if (!nav) return;
+        if (window.scrollY > 80) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      });
+
+      // Fade-in on scroll using IntersectionObserver
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+      );
+
+      document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
+
+      // Smooth scroll for nav links
+      document.querySelectorAll('.nav-links a[href^="#"]').forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const href = link.getAttribute('href');
+          if (href) {
+            const target = document.querySelector(href);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -11,6 +11,7 @@ export default defineConfig({
           label: 'Notes',
           items: [
             { label: 'GEA: Group-Evolving Agents', link: '/gea/' },
+            { label: 'GEA：群体进化智能体（中文版）', link: '/gea-cn/' },
             { slug: 'tractatus-logico-philosophicus' },
             { slug: 'philosophical-investigations' },
           ],
