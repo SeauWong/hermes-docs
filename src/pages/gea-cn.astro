@@ -19,852 +19,126 @@ isPage: true
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="GEA — 群体进化智能体" />
     <meta name="twitter:description" content="基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%。" />
-    <meta name="twitter:image" content="https://hermes-docs.pages.dev/gea-architecture.png" />
+    <meta name="twitter:image" content="https://www.theoku.com/gea-architecture.png" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
     <style>
-      /* === Reset & Base === */
-      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-      /* === Typography === */
-      @font-face {
-        font-family: 'Display';
-        src: local('Inter'), local('-apple-system'), local('PingFang SC'), local('Noto Sans SC'), local('Arial');
-        font-weight: 500;
-      }
-      @font-face {
-        font-family: 'Text';
-        src: local('Inter'), local('-apple-system'), local('PingFang SC'), local('Noto Sans SC'), local('Arial');
-        font-weight: 400;
-      }
-      @font-face {
-        font-family: 'Text';
-        src: local('Inter'), local('-apple-system'), local('PingFang SC'), local('Noto Sans SC'), local('Arial');
-        font-weight: 500;
-      }
-
       :root {
-        --electric-blue: #3E6AE1;
-        --pure-white: #FFFFFF;
-        --carbon-dark: #171A20;
-        --graphite: #393C41;
-        --pewter: #5C5E62;
-        --silver-fog: #8E8E8E;
-        --cloud-gray: #EEEEEE;
-        --pale-silver: #D0D1D2;
-        --light-ash: #F4F4F4;
-        --code-bg: #F6F8FA;
-        --border-color: #E5E7EB;
+        --black: #000000;
+        --white: #f0f0fa;
+        --ghost-bg: rgba(240, 240, 250, 0.1);
+        --ghost-border: rgba(240, 240, 250, 0.35);
+        --overlay: rgba(0, 0, 0, 0.6);
       }
-
-      html {
-        scroll-behavior: smooth;
-        scroll-snap-type: y proximity;
-      }
-
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
       body {
-        font-family: 'Text', -apple-system, 'PingFang SC', 'Noto Sans SC', Arial, sans-serif;
-        font-weight: 400;
-        color: var(--graphite);
-        background: var(--pure-white);
-        line-height: 1.43;
-        font-size: 14px;
+        font-family: 'D-DIN', 'Arial', 'PingFang SC', 'Noto Sans SC', sans-serif;
+        color: var(--white);
+        background: var(--black);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        line-height: 1.6;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
       }
 
       /* === Navigation === */
       .nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 16px 24px;
-        transition: background-color 0.33s, backdrop-filter 0.33s;
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 24px 8vw;
+        background: transparent;
+        transition: background 0.3s;
       }
-
-      .nav.scrolled {
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-      }
-
+      .nav.scrolled { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
       .nav-logo {
-        position: absolute;
-        left: 24px;
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: 14px;
-        letter-spacing: 0.3em;
-        text-transform: uppercase;
-        color: var(--pure-white);
-        text-decoration: none;
-        transition: color 0.33s;
+        font-weight: 700; font-size: 20px; letter-spacing: 3px;
+        color: var(--white); text-decoration: none;
       }
-
-      .nav.scrolled .nav-logo {
-        color: var(--carbon-dark);
-      }
-
-      .nav-links {
-        display: flex;
-        gap: 8px;
-        list-style: none;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
+      .nav-links { display: flex; gap: 28px; list-style: none; }
       .nav-links a {
-        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: 13px;
-        color: var(--pure-white);
-        text-decoration: none;
-        padding: 4px 12px;
-        border-radius: 4px;
-        transition: color 0.33s, background-color 0.33s;
+        color: var(--white); text-decoration: none;
+        font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+        transition: opacity 0.3s;
       }
+      .nav-links a:hover { opacity: 0.6; }
 
-      .nav.scrolled .nav-links a {
-        color: var(--carbon-dark);
-      }
-
-      .nav-links a:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      .nav.scrolled .nav-links a:hover {
-        background: var(--light-ash);
-      }
-
-      /* === Section Base === */
+      /* === Sections === */
       .section {
         min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 80px 24px;
-        scroll-snap-align: start;
+        display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+        padding: 100px 8vw;
         position: relative;
+        background-size: cover; background-position: center; background-attachment: fixed;
       }
-
-      .section--dark {
-        background: var(--carbon-dark);
-        color: var(--pure-white);
+      .section::before {
+        content: ''; position: absolute; inset: 0;
+        background: var(--overlay); z-index: 0;
       }
+      .section > * { position: relative; z-index: 1; }
 
-      .section--light {
-        background: var(--pure-white);
-      }
-
-      .section--ash {
-        background: var(--light-ash);
-      }
-
-      .section__content {
-        max-width: 1383px;
-        width: 100%;
-        text-align: center;
-      }
-
-      .section__title {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        line-height: 1.2;
-        letter-spacing: normal;
-        color: var(--carbon-dark);
-      }
-
-      .section__subtitle {
-        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 400;
-        font-size: 14px;
-        line-height: 1.43;
-        color: var(--pewter);
-        margin-top: 16px;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .section--dark .section__title { color: var(--pure-white); }
-      .section--dark .section__subtitle { color: rgba(255, 255, 255, 0.7); }
-
-      /* === Hero Section === */
-      .hero {
-        background: var(--carbon-dark);
-        position: relative;
-        overflow: hidden;
-      }
-
-      .hero::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background:
-          radial-gradient(ellipse 80% 60% at 50% 40%, rgba(62, 106, 225, 0.15) 0%, transparent 70%),
-          radial-gradient(ellipse 50% 40% at 30% 60%, rgba(62, 106, 225, 0.08) 0%, transparent 60%),
-          radial-gradient(ellipse 50% 40% at 70% 60%, rgba(62, 106, 225, 0.08) 0%, transparent 60%);
-        animation: heroGlow 8s ease-in-out infinite alternate;
-      }
-
-      @keyframes heroGlow {
-        0% { opacity: 0.6; transform: scale(1); }
-        100% { opacity: 1; transform: scale(1.05); }
-      }
-
-      .hero__content {
-        position: relative;
-        z-index: 1;
-      }
-
-      .hero__label {
-        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 400;
-        font-size: 22px;
-        color: var(--electric-blue);
-        margin-bottom: 8px;
-        opacity: 0.9;
-      }
-
-      .hero__title {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: clamp(48px, 8vw, 96px);
-        line-height: 1.05;
-        color: var(--pure-white);
-        letter-spacing: normal;
-        opacity: 0.92;
-      }
-
-      .hero__tagline {
-        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 400;
-        font-size: clamp(16px, 2vw, 22px);
-        color: rgba(255, 255, 255, 0.7);
-        margin-top: 16px;
-        line-height: 1.43;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .hero__meta {
-        font-size: 14px;
-        color: var(--silver-fog);
-        margin-top: 24px;
-        display: flex;
-        gap: 24px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-
-      .hero__meta span {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .hero__buttons {
-        display: flex;
-        gap: 16px;
-        justify-content: center;
-        margin-top: 40px;
-        flex-wrap: wrap;
+      /* === Typography === */
+      h1 { font-size: clamp(36px, 6vw, 72px); font-weight: 700; line-height: 1.05; margin-bottom: 16px; letter-spacing: 1.5px; }
+      h2 { font-size: clamp(28px, 4.5vw, 54px); font-weight: 700; margin-bottom: 24px; letter-spacing: 1.2px; }
+      h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; letter-spacing: 1.5px; color: rgba(240,240,250,0.7); }
+      p, li { font-size: 14px; line-height: 1.7; margin-bottom: 14px; max-width: 800px; text-transform: none; letter-spacing: 0.3px; }
+      code {
+        background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px;
+        font-family: 'Courier New', monospace; font-size: 13px; color: var(--white);
       }
 
       /* === Buttons === */
+      .btn-group { display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap; }
       .btn {
-        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: 14px;
-        line-height: 1.2;
-        border-radius: 4px;
-        min-height: 40px;
-        width: 200px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 16px 36px;
+        background: var(--ghost-bg);
+        border: 1px solid var(--ghost-border);
+        border-radius: 32px;
+        color: var(--white);
         text-decoration: none;
-        cursor: pointer;
-        border: 3px solid transparent;
-        box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 2px inset;
-        transition: border-color 0.33s, background-color 0.33s, color 0.33s, box-shadow 0.25s;
-      }
-
-      .btn--primary {
-        background: var(--electric-blue);
-        color: var(--pure-white);
-      }
-
-      .btn--primary:hover {
-        background: #3458c4;
-      }
-
-      .btn--outline {
-        background: transparent;
-        color: var(--pure-white);
-        border-color: var(--pure-white);
-      }
-
-      .btn--outline:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      .btn--dark-outline {
-        background: transparent;
-        color: var(--carbon-dark);
-        border-color: var(--carbon-dark);
-      }
-
-      .btn--dark-outline:hover {
-        background: var(--light-ash);
-      }
-
-      /* === Scroll Indicator === */
-      .scroll-indicator {
-        position: absolute;
-        bottom: 32px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 1;
-        animation: bounce 2s ease-in-out infinite;
-      }
-
-      .scroll-indicator svg {
-        width: 24px;
-        height: 24px;
-        stroke: rgba(255, 255, 255, 0.4);
-        stroke-width: 2;
-        fill: none;
-      }
-
-      @keyframes bounce {
-        0%, 100% { transform: translateX(-50%) translateY(0); }
-        50% { transform: translateX(-50%) translateY(8px); }
-      }
-
-      /* === Abstract Section === */
-      .abstract__text {
-        font-size: 18px;
-        line-height: 1.8;
-        color: var(--graphite);
-        max-width: 800px;
-        margin: 0 auto;
-        text-align: left;
-      }
-
-      .abstract__text::first-letter {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-size: 48px;
-        font-weight: 500;
-        color: var(--electric-blue);
-        float: left;
-        line-height: 1;
-        margin-right: 8px;
-        margin-top: 4px;
-      }
-
-      /* === Concept Cards === */
-      .concepts {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 16px;
-        margin-top: 48px;
-      }
-
-      .concept {
-        padding: 40px 32px;
-        text-align: left;
-        transition: background-color 0.33s;
-        border-radius: 12px;
-      }
-
-      .concept__icon {
-        width: 40px;
-        height: 40px;
-        margin-bottom: 16px;
-        color: var(--electric-blue);
-      }
-
-      .concept__title {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: 20px;
-        line-height: 1.2;
-        color: var(--carbon-dark);
-        margin-bottom: 12px;
-      }
-
-      .concept__desc {
-        font-size: 14px;
-        line-height: 1.43;
-        color: var(--pewter);
-      }
-
-      /* === Architecture Section === */
-      .arch-flow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        margin-top: 48px;
-        flex-wrap: wrap;
-      }
-
-      .arch-step {
-        padding: 24px 20px;
-        min-width: 140px;
-        text-align: center;
-        border-radius: 4px;
-        background: var(--pure-white);
-        transition: background-color 0.33s;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-      }
-
-      .arch-step__number {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: 24px;
-        color: var(--electric-blue);
-        margin-bottom: 8px;
-      }
-
-      .arch-step__title {
-        font-weight: 500;
-        font-size: 14px;
-        color: var(--carbon-dark);
-        margin-bottom: 4px;
-      }
-
-      .arch-step__desc {
-        font-size: 12px;
-        color: var(--pewter);
-      }
-
-      .arch-arrow {
-        color: var(--pale-silver);
-        flex-shrink: 0;
-      }
-
-      .arch-arrow svg {
-        width: 24px;
-        height: 24px;
-      }
-
-      /* === Detail Content Blocks === */
-      .detail-block {
-        text-align: left;
-        max-width: 900px;
-        margin: 48px auto 0;
-      }
-
-      .detail-block h3 {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: 22px;
-        color: var(--carbon-dark);
-        margin-bottom: 16px;
-        padding-bottom: 8px;
-        border-bottom: 2px solid var(--electric-blue);
-        display: inline-block;
-      }
-
-      .detail-block p {
-        font-size: 15px;
-        line-height: 1.8;
-        color: var(--graphite);
-        margin-bottom: 16px;
-      }
-
-      .detail-block ul, .detail-block ol {
-        padding-left: 24px;
-        margin-bottom: 16px;
-      }
-
-      .detail-block li {
-        font-size: 15px;
-        line-height: 1.8;
-        color: var(--graphite);
-        margin-bottom: 8px;
-      }
-
-      .detail-block strong {
-        color: var(--carbon-dark);
-      }
-
-      /* === Code/Formulas === */
-      .formula-block {
-        background: var(--code-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 24px;
-        margin: 24px 0;
-        text-align: center;
-        font-family: 'Courier New', monospace;
-        font-size: 15px;
-        line-height: 1.6;
-        color: var(--carbon-dark);
-        overflow-x: auto;
-      }
-
-      .formula-label {
-        font-size: 12px;
-        color: var(--silver-fog);
-        margin-bottom: 8px;
-        font-family: 'Text', -apple-system, 'PingFang SC', Arial, sans-serif;
-      }
-
-      code {
-        background: var(--code-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        padding: 2px 6px;
-        font-size: 13px;
-        font-family: 'Courier New', monospace;
-        color: var(--electric-blue);
-      }
-
-      /* === Tables === */
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 24px 0;
-        font-size: 14px;
-      }
-
-      .data-table th {
-        background: var(--carbon-dark);
-        color: var(--pure-white);
-        padding: 12px 16px;
-        text-align: left;
-        font-weight: 500;
-      }
-
-      .data-table td {
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--graphite);
-      }
-
-      .data-table tr:nth-child(even) {
-        background: var(--light-ash);
-      }
-
-      .data-table .highlight {
-        color: var(--electric-blue);
-        font-weight: 500;
-      }
-
-      /* === Timeline === */
-      .timeline {
-        position: relative;
-        max-width: 700px;
-        margin: 48px auto 0;
-        text-align: left;
-      }
-
-      .timeline::before {
-        content: '';
-        position: absolute;
-        left: 20px;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: var(--cloud-gray);
-      }
-
-      .timeline__item {
-        position: relative;
-        padding-left: 56px;
-        padding-bottom: 32px;
-      }
-
-      .timeline__item:last-child {
-        padding-bottom: 0;
-      }
-
-      .timeline__dot {
-        position: absolute;
-        left: 12px;
-        top: 4px;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: var(--pure-white);
-        border: 3px solid var(--electric-blue);
-      }
-
-      .timeline__title {
-        font-weight: 500;
-        font-size: 16px;
-        color: var(--carbon-dark);
-        margin-bottom: 4px;
-      }
-
-      .timeline__desc {
-        font-size: 14px;
-        line-height: 1.43;
-        color: var(--pewter);
-      }
-
-      /* === Comparison === */
-      .comparison {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 32px;
-        margin-top: 48px;
-        max-width: 800px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .comparison__col {
-        padding: 32px;
-        border-radius: 12px;
-        text-align: left;
-      }
-
-      .comparison__col--old {
-        background: var(--light-ash);
-      }
-
-      .comparison__col--new {
-        background: rgba(62, 106, 225, 0.06);
-      }
-
-      .comparison__label {
-        font-weight: 500;
-        font-size: 12px;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--silver-fog);
-        margin-bottom: 12px;
+        letter-spacing: 1.5px;
+        font-size: 13px; font-weight: 700;
+        transition: background 0.3s, border-color 0.3s, transform 0.2s;
       }
+      .btn:hover { background: rgba(240,240,250,0.2); border-color: var(--white); transform: translateY(-2px); }
 
-      .comparison__col--new .comparison__label {
-        color: var(--electric-blue);
+      /* === Components === */
+      .formula-block {
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(240,240,250,0.15);
+        padding: 24px; border-radius: 4px; margin: 24px 0;
+        font-family: 'Courier New', monospace; font-size: 15px; color: var(--white);
+        max-width: 700px; text-align: center;
       }
+      .formula-label { font-size: 11px; color: rgba(240,240,250,0.5); margin-bottom: 8px; letter-spacing: 1.5px; }
 
-      .comparison__heading {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: 24px;
-        color: var(--carbon-dark);
-        margin-bottom: 16px;
-      }
+      table { width: 100%; border-collapse: collapse; margin: 24px 0; max-width: 900px; }
+      th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(240,240,250,0.15); font-size: 13px; }
+      th { font-weight: 700; letter-spacing: 1.2px; color: rgba(240,240,250,0.8); }
+      td { color: var(--white); }
 
-      .comparison__item {
-        font-size: 14px;
-        color: var(--graphite);
-        padding: 8px 0;
-        border-bottom: 1px solid var(--cloud-gray);
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-      }
+      .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px; width: 100%; max-width: 1200px; margin-top: 24px; }
+      .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; width: 100%; max-width: 1200px; margin-top: 24px; }
+      .card { padding: 24px; border: 1px solid rgba(240,240,250,0.15); border-radius: 4px; background: rgba(0,0,0,0.3); }
+      .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+      .card p { font-size: 13px; color: rgba(240,240,250,0.7); margin: 0; }
 
-      .comparison__item:last-child {
-        border-bottom: none;
-      }
+      .arch-img { width: 100%; max-width: 1000px; border-radius: 4px; margin: 32px 0; border: 1px solid rgba(240,240,250,0.1); }
+      .step-list { list-style: none; padding: 0; counter-reset: step; }
+      .step-list li { counter-increment: step; padding: 16px 0; border-bottom: 1px solid rgba(240,240,250,0.1); display: flex; gap: 16px; align-items: baseline; }
+      .step-list li::before { content: counter(step, decimal-leading-zero); font-weight: 700; font-size: 14px; color: rgba(240,240,250,0.5); min-width: 28px; }
 
-      .comparison__check {
-        flex-shrink: 0;
-        margin-top: 2px;
-      }
+      .footer { padding: 60px 8vw; text-align: center; border-top: 1px solid rgba(240,240,250,0.1); }
+      .footer a { color: rgba(240,240,250,0.6); text-decoration: none; margin: 0 16px; font-size: 12px; letter-spacing: 1px; transition: color 0.3s; }
+      .footer a:hover { color: var(--white); }
 
-      /* === Benchmark Section === */
-      .benchmarks {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 48px;
-        margin-top: 64px;
-      }
-
-      .benchmark {
-        text-align: center;
-      }
-
-      .benchmark__value {
-        font-family: 'Display', -apple-system, 'PingFang SC', Arial, sans-serif;
-        font-weight: 500;
-        font-size: clamp(48px, 6vw, 72px);
-        line-height: 1;
-        color: var(--electric-blue);
-      }
-
-      .benchmark__label {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--carbon-dark);
-        margin-top: 8px;
-      }
-
-      .benchmark__detail {
-        font-size: 13px;
-        color: var(--silver-fog);
-        margin-top: 4px;
-      }
-
-      /* === Bar Chart === */
-      .chart {
-        margin-top: 48px;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
-        width: 100%;
-      }
-
-      .chart__bar-group {
-        margin-bottom: 24px;
-      }
-
-      .chart__bar-label {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        margin-bottom: 8px;
-        font-size: 14px;
-      }
-
-      .chart__bar-name {
-        font-weight: 500;
-        color: var(--carbon-dark);
-      }
-
-      .chart__bar-value {
-        font-weight: 500;
-        color: var(--graphite);
-      }
-
-      .chart__bar-track {
-        width: 100%;
-        height: 8px;
-        background: var(--cloud-gray);
-        border-radius: 4px;
-        overflow: hidden;
-      }
-
-      .chart__bar-fill {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.66s cubic-bezier(0.5, 0, 0, 0.75);
-      }
-
-      .chart__bar-fill--primary {
-        background: var(--electric-blue);
-      }
-
-      .chart__bar-fill--secondary {
-        background: var(--pale-silver);
-      }
-
-      /* === Boundary Cards === */
-      .boundary-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        gap: 20px;
-        margin-top: 40px;
-      }
-
-      .boundary-card {
-        padding: 28px 24px;
-        border-radius: 10px;
-        text-align: left;
-        border: 1px solid var(--border-color);
-        background: var(--pure-white);
-      }
-
-      .boundary-card--limit {
-        border-left: 4px solid #EF4444;
-      }
-
-      .boundary-card--scope {
-        border-left: 4px solid #F59E0B;
-      }
-
-      .boundary-card--risk {
-        border-left: 4px solid #8B5CF6;
-      }
-
-      .boundary-card__title {
-        font-weight: 500;
-        font-size: 16px;
-        color: var(--carbon-dark);
-        margin-bottom: 8px;
-      }
-
-      .boundary-card__desc {
-        font-size: 14px;
-        line-height: 1.6;
-        color: var(--pewter);
-      }
-
-      /* === Footer === */
-      .footer {
-        padding: 48px 24px;
-        text-align: center;
-        border-top: 1px solid var(--cloud-gray);
-      }
-
-      .footer__links {
-        display: flex;
-        gap: 32px;
-        justify-content: center;
-        margin-bottom: 16px;
-        flex-wrap: wrap;
-      }
-
-      .footer__link {
-        font-size: 14px;
-        font-weight: 400;
-        color: var(--pewter);
-        text-decoration: none;
-        transition: box-shadow 0.33s, color 0.33s;
-      }
-
-      .footer__link:hover {
-        color: var(--carbon-dark);
-      }
-
-      .footer__copy {
-        font-size: 12px;
-        color: var(--silver-fog);
-      }
-
-      /* === Fade-in animation === */
-      .fade-in {
-        opacity: 0;
-        transform: translateY(24px);
-        transition: opacity 0.66s cubic-bezier(0.5, 0, 0, 0.75),
-                    transform 0.66s cubic-bezier(0.5, 0, 0, 0.75);
-      }
-
-      .fade-in.visible {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      /* === Responsive === */
       @media (max-width: 768px) {
+        .section { padding: 80px 5vw; background-attachment: scroll; }
+        .nav { padding: 20px 5vw; }
         .nav-links { display: none; }
-        .hero__buttons { flex-direction: column; align-items: center; }
-        .btn { width: 100%; max-width: 300px; }
-        .concepts { grid-template-columns: 1fr; }
-        .benchmarks { grid-template-columns: 1fr 1fr; }
-        .comparison { grid-template-columns: 1fr; }
-        .arch-flow { flex-direction: column; }
-        .arch-arrow { transform: rotate(90deg); }
-        .hero__meta { flex-direction: column; gap: 8px; align-items: center; }
-        .boundary-cards { grid-template-columns: 1fr; }
-      }
-
-      @media (max-width: 480px) {
-        .benchmarks { grid-template-columns: 1fr; }
+        .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        h1 { font-size: 36px; }
+        h2 { font-size: 28px; }
       }
     </style>
   </head>
@@ -874,493 +148,207 @@ isPage: true
       <a href="/" class="nav-logo">GEA</a>
       <ul class="nav-links">
         <li><a href="#abstract">摘要</a></li>
-        <li><a href="#concepts">核心概念</a></li>
+        <li><a href="#concepts">概念</a></li>
         <li><a href="#architecture">架构</a></li>
         <li><a href="#algorithm">算法</a></li>
-        <li><a href="#evolution">进化流程</a></li>
-        <li><a href="#experiments">实验</a></li>
+        <li><a href="#evolution">流程</a></li>
         <li><a href="#results">结果</a></li>
-        <li><a href="#boundaries">边界</a></li>
         <li><a href="https://arxiv.org/abs/2602.04837" target="_blank">论文</a></li>
       </ul>
     </nav>
 
     <!-- Hero -->
-    <section class="section hero" id="hero">
-      <div class="hero__content">
-        <p class="hero__label">加州大学圣塔芭芭拉分校 · Eric AI Lab</p>
-        <h1 class="hero__title">GEA</h1>
-        <p class="hero__tagline">Group-Evolving Agents — 基于经验共享的开放式自我改进</p>
-        <div class="hero__meta">
-          <span>arXiv:2602.04837</span>
-          <span>2026 年 2 月</span>
-          <span>人工智能 / 多智能体系统</span>
-        </div>
-        <div class="hero__buttons">
-          <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn btn--primary">阅读论文</a>
-          <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn btn--outline">查看代码</a>
-          </div>
-        </div>
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=1920&q=80');">
+      <h3>加州大学圣塔芭芭拉分校 · Eric AI Lab</h3>
+      <h1>GEA — 群体进化智能体</h1>
+      <p style="font-size: 16px; max-width: 700px; margin-top: 16px;">基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%。零额外推理成本匹配人工工程化系统。</p>
+      <div class="btn-group">
+        <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn">阅读论文</a>
+        <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn">查看代码</a>
+      </div>
+    </section>
 
-        <div style="margin-top: 48px; max-width: 960px; margin-left: auto; margin-right: auto;">
-          <img src="/gea-evolution-cycle.png" alt="GEA 进化循环流程图" style="width: 100%; height: auto; border-radius: 12px;" loading="lazy" />
+    <!-- Abstract -->
+    <section class="section" id="abstract" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80');">
+      <h2>摘要</h2>
+      <p>群体进化智能体（GEA）提出了一种全新的 AI 系统开放式自我改进范式。与当前主流框架中将单个智能体作为进化单元的"孤狼"式方法不同，GEA 将一组智能体作为基本的进化单位。组内智能体可以自主修改自身结构设计以提升能力并克服局限。共享的经验池被每一个未来的智能体作为既定事实继承，从而实现了初始探索的多样性并随时间不断演化。</p>
+      <p>在具有挑战性的编码基准测试中，GEA 达到 71.0%（SWE-bench Verified），而此前自我进化方法仅为 56.7%；在 Polyglot 上达到 88.3% vs 68.3%。GEA 以零额外推理成本匹配了人工工程化的 AI 系统（71.0% vs 71.8% OpenHands+GPT-5）。</p>
+    </section>
+
+    <!-- Core Concepts -->
+    <section class="section" id="concepts" style="background-image: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80');">
+      <h2>核心概念</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h4>群体为单位</h4>
+          <p>进化作用于群体层面而非个体。每次迭代选择 K 个父代智能体组成群体，共同产生同等大小的子代群体。超参数：K=2，M=4。</p>
         </div>
+        <div class="card">
+          <h4>经验共享</h4>
+          <p>父代群体中每个智能体的进化轨迹（代码补丁、失败任务、预测补丁、执行日志、评估结果）被聚合为群体级经验池 S，所有子代智能体从中学习。</p>
+        </div>
+        <div class="card">
+          <h4>开放式增长</h4>
+          <p>没有预设的能力目标。通过 Performance-Novelty 选择策略平衡即时性能与探索新颖性，系统持续发现新策略并纳入自身。</p>
+        </div>
+      </div>
+    </section>
 
-        <div class="detail-block">
-          <h3>Archive（档案库）</h3>
-          <p>符号：<code>𝒜</code>。存储进化过程中发现的所有智能体。每个智能体 <code>i</code> 用<strong>任务成功向量</strong> <code>z<sub>i</sub> ∈ {'{0,1}'}<sup>D</sup></code> 表示，并关联性能分数 <code>α<sub>i</sub></code>。其中 D 是探测任务集合的大小，每个维度表示智能体是否成功解决对应的探测任务。</p>
-
-          <h3>智能体表示</h3>
-          <p>任务成功向量 <code>z<sub>i</sub> ∈ {'{0,1}'}<sup>D</sup></code> 是 GEA 表征智能体编码能力分布的核心数据结构：</p>
-          <ul>
-            <li><code>z_i[d] = 1</code>：智能体成功解决了第 d 个探测任务</li>
-            <li><code>z_i[d] = 0</code>：智能体未能解决第 d 个探测任务</li>
-            <li>用于计算智能体之间的余弦距离，衡量能力差异</li>
-            <li>作为 KNN Novelty 计算的基础，量化智能体的新颖性</li>
+    <!-- Paradigm Shift -->
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=1920&q=80');">
+      <h2>范式转换</h2>
+      <div class="grid-2">
+        <div>
+          <h3>树状结构进化 (DGM)</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li>× 每次迭代选择单个智能体作为父代</li>
+            <li>× 进化分支严格隔离，无跨分支经验共享</li>
+            <li>× 反思模块仅接收自身进化轨迹</li>
+            <li>× 早期探索的多样性成为"临时多样性"</li>
           </ul>
         </div>
+        <div>
+          <h3>群体进化 (GEA)</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li>✓ 每次迭代选择 K 个智能体组成父代群体</li>
+            <li>✓ 显式的群体内经验共享与复用</li>
+            <li>✓ 共享经验池 S = ∪T_j 聚合所有父代轨迹</li>
+            <li>✓ Top-1 智能体整合了 17 个祖先 (28.3%)，DGM 仅 9 个 (15.0%)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="section" id="architecture" style="background-image: url('https://images.unsplash.com/photo-1518364538800-6bae3c2ea0f2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>系统架构</h2>
+      <p>GEA 的三大核心组件：Archive → Parent Group Selection → Group Evolution</p>
+      <img src="/gea-architecture.png" alt="GEA 系统架构图" class="arch-img" loading="lazy" />
+      <div style="max-width: 800px;">
+        <h3>Archive（档案库）</h3>
+        <p>符号：𝒜。存储进化过程中发现的所有智能体。每个智能体 i 用任务成功向量 z<sub>i</sub> ∈ {'{0,1}'}<sup>D</sup> 表示，并关联性能分数 α<sub>i</sub>。其中 D 是探测任务集合的大小，每个维度表示智能体是否成功解决对应的探测任务。</p>
       </div>
     </section>
 
     <!-- Algorithm -->
-    <section class="section section--ash" id="algorithm">
-      <div class="section__content fade-in">
-        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">核心算法</h2>
-        <p class="section__subtitle" style="margin-bottom: 16px;">Performance-Novelty 选择策略与 KNN Novelty</p>
-
-        <div class="detail-block">
-          <h3>公式 1：余弦距离</h3>
-          <p>衡量两个智能体能力分布的差异：</p>
-          <div class="formula-block">
-            <div class="formula-label">Cosine Distance</div>
-            d(i,j) = 1 - (z<sub>i</sub><sup>T</sup> · z<sub>j</sub>) / (||z<sub>i</sub>||₂ · ||z<sub>j</sub>||₂ + ε)
-          </div>
-          <p>其中 ε 是数值稳定性的小常数（防止除零）。距离越大表示两个智能体的能力分布越不同。</p>
-
-          <h3>公式 2：KNN Novelty</h3>
-          <p>智能体 i 的新颖性定义为其到 M 个最近邻的平均余弦距离：</p>
-          <div class="formula-block">
-            <div class="formula-label">KNN Novelty (M=4)</div>
-            nov(i) = (1/M) · Σ<sub>j ∈ N<sub>M</sub>(i)</sub> d(i,j)
-          </div>
-          <p>其中 N_M(i) 是与智能体 i 余弦距离最小的 M 个智能体的集合。实验中 M=4。</p>
-
-          <h3>公式 3：Performance-Novelty 综合得分</h3>
-          <p>平衡即时性能与探索新颖性：</p>
-          <div class="formula-block">
-            <div class="formula-label">Selection Score</div>
-            score(i) = α<sub>i</sub> · √nov(i)
-          </div>
-          <p>其中 α_i 是智能体 i 在下游编码任务上的性能分数。<strong>√nov(i)</strong> 的平方根设计用于<strong>缓和</strong>新颖性的影响——性能作为主要选择标准，新颖性作为温和的偏差，实现利用（exploitation）与探索（exploration）之间的平衡。</p>
+    <section class="section" id="algorithm" style="background-image: url('https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=1920&q=80');">
+      <h2>核心算法</h2>
+      <div style="max-width: 800px;">
+        <h3>公式 1：余弦距离</h3>
+        <div class="formula-block">
+          <div class="formula-label">Cosine Distance</div>
+          d(i,j) = 1 - (z<sub>i</sub><sup>T</sup> · z<sub>j</sub>) / (||z<sub>i</sub>||₂ · ||z<sub>j</sub>||₂ + ε)
         </div>
+        <p>其中 ε 是数值稳定性的小常数。距离越大表示两个智能体的能力分布越不同。</p>
+
+        <h3>公式 2：KNN Novelty</h3>
+        <div class="formula-block">
+          <div class="formula-label">KNN Novelty (M=4)</div>
+          nov(i) = (1/M) · Σ<sub>j ∈ N<sub>M</sub>(i)</sub> d(i,j)
+        </div>
+        <p>N_M(i) 是与智能体 i 余弦距离最小的 M 个智能体的集合。实验中 M=4。</p>
+
+        <h3>公式 3：Performance-Novelty 综合得分</h3>
+        <div class="formula-block">
+          <div class="formula-label">Selection Score</div>
+          score(i) = α<sub>i</sub> · √nov(i)
+        </div>
+        <p>性能作为主要选择标准，新颖性作为温和的偏差，实现利用与探索之间的平衡。</p>
       </div>
     </section>
 
     <!-- Evolution Flow -->
-    <section class="section section--light" id="evolution">
-      <div class="section__content fade-in">
-        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">进化流程</h2>
-        <p class="section__subtitle" style="margin-bottom: 16px;">完整的进化循环（Algorithm 1 + Algorithm 2）</p>
-
-        <div class="arch-flow">
-          <div class="arch-step">
-            <div class="arch-step__number">01</div>
-            <div class="arch-step__title">初始化</div>
-            <div class="arch-step__desc">从初始智能体开始，档案库 𝒜 包含 iteration-0 agent</div>
-          </div>
-          <div class="arch-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="arch-step">
-            <div class="arch-step__number">02</div>
-            <div class="arch-step__title">选择父代</div>
-            <div class="arch-step__desc">Performance-Novelty 选 top-K</div>
-          </div>
-          <div class="arch-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="arch-step">
-            <div class="arch-step__number">03</div>
-            <div class="arch-step__title">聚合经验</div>
-            <div class="arch-step__desc">S = ∪ T_j 聚合群体轨迹</div>
-          </div>
-          <div class="arch-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="arch-step">
-            <div class="arch-step__number">04</div>
-            <div class="arch-step__title">反思+进化</div>
-            <div class="arch-step__desc">Reflect → Evolve → ApplyPatch</div>
-          </div>
-          <div class="arch-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-          <div class="arch-step">
-            <div class="arch-step__number">05</div>
-            <div class="arch-step__title">评估+归档</div>
-            <div class="arch-step__desc">编译检查 → 任务评估 → 加入档案</div>
-          </div>
-        </div>
-
-        <div class="detail-block">
-          <h3>步骤详解</h3>
-
-          <p><strong>步骤 1：父代群体选择</strong></p>
-          <ol>
-            <li>对档案库中每个智能体 i，计算其到所有其他智能体 j 的余弦距离 d(i,j)</li>
-            <li>找出 M 个最近邻 N_M(i)</li>
-            <li>计算新颖性 nov(i) = (1/M) · Σ d(i,j)</li>
-            <li>计算综合得分 score(i) = α_i · √nov(i)</li>
-            <li>选取 top-K 个智能体组成父代群体 𝒢，|𝒢| = K</li>
-          </ol>
-
-          <p><strong>步骤 2：开放式群体进化</strong></p>
-          <p>对每个父代智能体 a_i ∈ 𝒢，收集<strong>进化轨迹 T_i</strong>，包含四项内容：</p>
-          <ul>
-            <li><code>P_i^Applied</code>：应用到智能体框架的代码修改补丁</li>
-            <li><code>t_i^fail</code>：从该智能体未解决的任务中随机采样的一个任务</li>
-            <li><code>P_i^pred</code>：智能体 a_i 对采样任务 t_i^fail 生成的预测补丁</li>
-            <li><code>L_i</code>：执行日志（完整的工具调用历史和工作流）</li>
-            <li><code>O_i</code>：评估结果（暴露失败模式和框架级改进方向）</li>
-          </ul>
-          <p>即 <code>T<sub>i</sub> = {'{'}P<sub>i</sub><sup>Applied</sup>, P<sub>i</sub><sup>pred</sup>, L<sub>i</sub>, O<sub>i</sub>{'}'}</code></p>
-
-          <p><strong>聚合群体级经验：</strong><code>S = ∪<sub>a<sub>j</sub> ∈ 𝒢</sub> T<sub>j</sub></code></p>
-
-          <p><strong>对每个智能体 a_i ∈ 𝒢 执行：</strong></p>
-          <ol>
-            <li><strong>反思（Reflection）</strong>：<code>Δ_i ← Reflect(a_i; S)</code> — 分析共享经验，生成针对工作流、工具使用或提示策略的进化指令</li>
-            <li><strong>进化（Evolution）</strong>：<code>π_i' ← Evolve(a_i; Δ_i)</code> — 生成框架级补丁</li>
-            <li><strong>执行（Acting）</strong>：<code>a_i' ← ApplyPatch(a_i, π_i')</code> — 应用补丁</li>
-            <li><strong>评估</strong>：<code>ActAndEvaluate(a_i'; 𝒯)</code> — 在下游编程任务上评估</li>
-            <li><strong>档案更新</strong>：如果 a<sub>i</sub>' 能编译且具备基本编码功能，则加入档案库 <code>𝒜 ← 𝒜 ∪ {'{'}a<sub>i</sub>{'}'}</code></li>
-          </ol>
-        </div>
-
-        <div class="timeline" style="margin-top: 64px;">
-          <div class="timeline__item">
-            <div class="timeline__dot"></div>
-            <h4 class="timeline__title">经验池 S 的结构</h4>
-            <p class="timeline__desc">父代群体中所有智能体进化轨迹的并集。包含已应用的代码补丁、预测任务补丁、完整执行日志和评估结果。每个子代智能体都从整个群体的集体经验中学习。</p>
-          </div>
-          <div class="timeline__item">
-            <div class="timeline__dot"></div>
-            <h4 class="timeline__title">智能体多样性</h4>
-            <p class="timeline__desc">通过 Performance-Novelty 策略维持。新颖性分量鼓励选择能力分布不同的智能体，确保群体对解空间的广泛探索。KNN Novelty (M=4) 量化这种差异。</p>
-          </div>
-          <div class="timeline__item">
-            <div class="timeline__dot"></div>
-            <h4 class="timeline__title">选择压力</h4>
-            <p class="timeline__desc">只有编译成功且具备基本编码功能的子代智能体才会被加入档案库。Performance-Novelty 得分低的智能体在后续迭代中不会被选中作为父代。</p>
-          </div>
-          <div class="timeline__item">
-            <div class="timeline__dot"></div>
-            <h4 class="timeline__title">零推理开销</h4>
-            <p class="timeline__desc">部署时只有进化出的最优智能体运行。进化过程是离线的——生产使用期间没有额外的推理成本。SWE-bench 仅对 top-2 智能体进行完整评估。</p>
-          </div>
-        </div>
+    <section class="section" id="evolution" style="background-image: url('https://images.unsplash.com/photo-1457364559154-aa2644600ebb?auto=format&fit=crop&w=1920&q=80');">
+      <h2>进化流程</h2>
+      <img src="/gea-evolution-cycle.png" alt="GEA 进化循环流程图" class="arch-img" loading="lazy" />
+      <div style="max-width: 800px;">
+        <ol class="step-list">
+          <li><strong>父代群体选择</strong>：计算余弦距离 → 找出 M 个最近邻 → 计算新颖性 → 综合得分排序 → 选取 top-K 组成父代群体</li>
+          <li><strong>收集轨迹</strong>：对每个父代智能体收集 P<sub>i</sub><sup>Applied</sup>, P<sub>i</sub><sup>pred</sup>, L<sub>i</sub>, O<sub>i</sub></li>
+          <li><strong>聚合经验</strong>：S = ∪<sub>a<sub>j</sub> ∈ 𝒢</sub> T<sub>j</sub></li>
+          <li><strong>反思与进化</strong>：Reflect(a_i; S) → Evolve → ApplyPatch</li>
+          <li><strong>评估与归档</strong>：编译检查 → 任务评估 → 加入档案库 𝒜 ← 𝒜 ∪ {'{'}a<sub>i</sub>{'}'}</li>
+        </ol>
       </div>
     </section>
 
     <!-- Experiments -->
-    <section class="section section--ash" id="experiments">
-      <div class="section__content fade-in">
-        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">实验设置</h2>
-        <p class="section__subtitle" style="margin-bottom: 16px;">基准测试、超参数与对比基线</p>
-
-        <div class="detail-block">
+    <section class="section" id="experiments" style="background-image: url('https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>实验设置</h2>
+      <div class="grid-2">
+        <div>
           <h3>SWE-bench Verified</h3>
-          <p>经过人工验证的 SWE-bench 子集，每个任务均确认可解。采用<strong>三阶段评估策略</strong>：</p>
-          <ol>
-            <li><strong>健全性检查</strong>：10 个任务的小集合，淘汰有框架级故障的智能体（无法编译或 0/10 解决）</li>
-            <li><strong>Verified-Mini</strong>：50 个任务，保持与完整基准相似的难度和通过率分布</li>
-            <li><strong>完整 SWE-bench Verified</strong>：仅对前 2 名智能体进行评估</li>
-          </ol>
-          <p><strong>进化设置</strong>：30 次迭代。前 20 次迭代使用 <strong>Claude Haiku 4.5</strong>（进化和执行模块），后 10 次迭代使用 <strong>Claude Sonnet 4.5</strong>。反思模块全程使用 <strong>GPT-o1</strong>。</p>
-
+          <p>三阶段评估：健全性检查 (10 tasks) → Verified-Mini (50 tasks) → 完整基准 (仅 top-2)。30 次迭代，前 20 次用 Claude Haiku 4.5，后 10 次用 Claude Sonnet 4.5，反思全程用 GPT-o1。</p>
+        </div>
+        <div>
           <h3>Polyglot</h3>
-          <p>评估跨多种语言（C++、Rust、Java 等）的算法代码生成，作为<strong>域外泛化测试</strong>。报告指标：pass@1。</p>
-          <p><strong>进化设置</strong>：20 次迭代。进化仅在 10 个任务的小集合上进行，成功率超过 40% 的智能体在独立的、未见过的 50 个任务中等集合上评估。前 10 次迭代使用 Claude Haiku 4.5，后 10 次使用 Claude Sonnet 4.5。反思模块全程使用 GPT-o1。</p>
-
-          <h3>超参数</h3>
-          <div class="formula-block">
-            <div class="formula-label">Hyperparameters</div>
-            群体大小 K = 2<br/>
-            KNN 邻居数 M = 4
-          </div>
-
-          <h3>对比基线</h3>
-          <p><strong>Open-Ended Self-Evolving Baseline (DGM)</strong>：遵循 Darwin Gödel Machine 的实现。严格树状结构进化——每次迭代只选择单个智能体作为父代，独立进化为一个子代。无跨分支经验共享。为确保公平比较，基线运行的迭代次数是 GEA 的两倍（SWE-bench: 60 次；Polyglot: 40 次），使进化智能体总数相当。</p>
-          <p><strong>Human-Designed Frameworks</strong>：SWE-bench Verified 使用 OpenHands + GPT-5（71.8%）；Polyglot 使用 Aider + GPT-5 (high)（52.0% pass@1）。</p>
+          <p>跨多语言算法代码生成（C++、Rust、Java 等）。20 次迭代，前 10 次 Haiku 4.5，后 10 次 Sonnet 4.5。成功率超 40% 的智能体在 50 个未见任务上评估。</p>
         </div>
       </div>
+      <p style="margin-top: 24px;"><strong>超参数</strong>：K = 2, M = 4 | <strong>基线对比</strong>：DGM (60/40 次迭代) vs 人工设计 (OpenHands+GPT-5, Aider+GPT-5)</p>
     </section>
 
     <!-- Results -->
-    <section class="section section--light" id="results">
-      <div class="section__content fade-in">
-        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">实验结果</h2>
-        <p class="section__subtitle" style="margin-bottom: 16px;">GEA 相比基线的全面优势</p>
+    <section class="section" id="results" style="background-image: url('https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>实验结果</h2>
+      <img src="/gea-benchmark.png" alt="GEA Benchmark 对比" class="arch-img" loading="lazy" />
+      <div style="max-width: 900px; width: 100%;">
+        <table>
+          <thead>
+            <tr><th>基准</th><th>GEA</th><th>DGM</th><th>人工设计</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>SWE-bench Verified</td><td>71.0%</td><td>56.7%</td><td>71.8%</td></tr>
+            <tr><td>Polyglot</td><td>88.3%</td><td>68.3%</td><td>52.0%</td></tr>
+          </tbody>
+        </table>
 
-        <div class="benchmarks">
-          <div class="benchmark">
-            <div class="benchmark__value">71.0%</div>
-            <div class="benchmark__label">SWE-bench Verified</div>
-            <div class="benchmark__detail">GEA vs DGM 56.7% (+14.3%)</div>
-          </div>
-          <div class="benchmark">
-            <div class="benchmark__value">88.3%</div>
-            <div class="benchmark__label">Polyglot</div>
-            <div class="benchmark__detail">GEA vs DGM 68.3% (+20.0%)</div>
-          </div>
-          <div class="benchmark">
-            <div class="benchmark__value">1.4</div>
-            <div class="benchmark__label">Bug 修复迭代</div>
-            <div class="benchmark__detail">GEA vs DGM 5.0 次</div>
-          </div>
-          <div class="benchmark">
-            <div class="benchmark__value">28.3%</div>
-            <div class="benchmark__label">祖先整合率</div>
-            <div class="benchmark__detail">GEA Top-1 vs DGM 15.0%</div>
-          </div>
-        </div>
+        <h3>鲁棒性 (Bug 修复迭代)</h3>
+        <table>
+          <thead><tr><th>方法</th><th>E1</th><th>E2</th><th>E3</th><th>E4</th><th>E5</th><th>平均</th></tr></thead>
+          <tbody><tr><td>DGM</td><td>5</td><td>4</td><td>5</td><td>6</td><td>5</td><td>5.0</td></tr><tr><td>GEA</td><td>1</td><td>1</td><td>2</td><td>1</td><td>2</td><td>1.4</td></tr></tbody>
+        </table>
 
-        <div style="margin-top: 48px; max-width: 960px; margin-left: auto; margin-right: auto;">
-          <img src="/gea-benchmark.png" alt="GEA Benchmark 对比" style="width: 100%; height: auto; border-radius: 12px;" loading="lazy" />
-        </div>
-
-        <div class="detail-block">
-          <h3>主要性能对比</h3>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>基准</th>
-                <th>GEA</th>
-                <th>DGM（自进化基线）</th>
-                <th>人类设计最佳</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>SWE-bench Verified</td>
-                <td class="highlight">71.0%</td>
-                <td>56.7%</td>
-                <td>71.8% (OpenHands+GPT-5)</td>
-              </tr>
-              <tr>
-                <td>Polyglot</td>
-                <td class="highlight">88.3%</td>
-                <td>68.3%</td>
-                <td>52.0% (Aider+GPT-5)</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <h3>祖先整合分析</h3>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>排名</th>
-                <th>DGM 最坏情况成功率</th>
-                <th>GEA 最坏情况成功率</th>
-                <th>DGM 祖先数</th>
-                <th>GEA 祖先数</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Top-1</td>
-                <td>56.7%</td>
-                <td class="highlight">71.0%</td>
-                <td>9 (15.0%)</td>
-                <td class="highlight">17 (28.3%)</td>
-              </tr>
-              <tr>
-                <td>Top-3</td>
-                <td>48.3%</td>
-                <td class="highlight">63.3%</td>
-                <td>13 (21.7%)</td>
-                <td class="highlight">17 (28.3%)</td>
-              </tr>
-              <tr>
-                <td>Top-5</td>
-                <td>45.0%</td>
-                <td class="highlight">58.3%</td>
-                <td>16 (26.7%)</td>
-                <td class="highlight">18 (30.0%)</td>
-              </tr>
-            </tbody>
-          </table>
-          <p><strong>关键发现</strong>：GEA 的 top-5 中<strong>最差</strong>的智能体（58.3%）也超过了 DGM 的<strong>最佳</strong>智能体（56.7%）。</p>
-
-          <h3>鲁棒性（Robustness）</h3>
-          <p>从 GEA 档案库中随机选择智能体，手动注入框架级 bug，与原始父代群体中无 bug 的智能体组成群体进行进化：</p>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>方法</th>
-                <th>E1</th>
-                <th>E2</th>
-                <th>E3</th>
-                <th>E4</th>
-                <th>E5</th>
-                <th>平均</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>DGM</td>
-                <td>5</td>
-                <td>4</td>
-                <td>5</td>
-                <td>6</td>
-                <td>5</td>
-                <td><strong>5.0</strong></td>
-              </tr>
-              <tr>
-                <td>GEA</td>
-                <td class="highlight">1</td>
-                <td class="highlight">1</td>
-                <td class="highlight">2</td>
-                <td class="highlight">1</td>
-                <td class="highlight">2</td>
-                <td class="highlight"><strong>1.4</strong></td>
-              </tr>
-            </tbody>
-          </table>
-          <p>GEA 平均仅需 <strong>1.4 次迭代</strong> 修复注入的框架级 bug，而 DGM 需要 <strong>5 次迭代</strong>。</p>
-
-          <h3>可迁移性（Transferability）</h3>
-          <p>GEA 最佳智能体在 <strong>GPT 系列和 Claude 系列</strong>模型上均一致优于对应的初始（iteration-0）智能体。所有性能提升补丁主要针对<strong>工作流和工具使用</strong>，而非模型特定的提示策略。改进是<strong>模型无关的</strong>（model-agnostic），可跨不同编码模型泛化。</p>
-
-          <h3>进化模式分析</h3>
-          <ul>
-            <li><strong>Polyglot</strong>：元学习产生更大、更集中的补丁，仅需 <strong>4 次迭代</strong> 达到 88.3%，新增 <strong>8,677 行代码</strong></li>
-            <li><strong>SWE-bench Verified</strong>：补丁更小、更分散，需要 <strong>8 次迭代</strong> 达到 71.0%，新增 <strong>9,663 行代码</strong></li>
-          </ul>
-
-          <h3>工具发现与整合</h3>
-          <p>9 个关键工具级修改中，GEA 最佳智能体整合了 <strong>8 个</strong>，DGM 最佳智能体仅整合了 <strong>5 个</strong>。DGM 缺失的 4 个工具曾在孤立分支中被探索（如 T4 在第 9 次迭代），但因谱系隔离未能传播。GEA 整合的工具中，<strong>5 个来自不同的父代智能体</strong>。</p>
-
-          <h3>案例研究：Top-3 智能体的补丁</h3>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>补丁描述</th>
-                <th>Δ Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>docutils_debug</td><td>+0.10</td></tr>
-              <tr><td>Modified core agent logic</td><td>+0.10</td></tr>
-              <tr><td>Updated tests logic</td><td class="highlight">+0.22</td></tr>
-              <tr><td>Add snippet_extract tool</td><td>+0.10</td></tr>
-              <tr><td>Updating edit tools (v1-v3)</td><td>+0.01 ~ +0.05</td></tr>
-              <tr><td>Add bash tools</td><td>+0.01</td></tr>
-              <tr><td>Add multi-file tools (v1-v2)</td><td>+0.01 ~ +0.07</td></tr>
-            </tbody>
-          </table>
-          <p>所有三个智能体的性能提升补丁<strong>主要聚焦于增强工作流和工具使用</strong>，而非依赖模型特定的提示策略。其中 <strong>Updated tests logic (+0.22)</strong> 贡献最大。这解释了为什么 GEA 的改进可以跨不同编码模型迁移。</p>
-
-          <h3>成本分析</h3>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>编码模型</th>
-                <th>基准</th>
-                <th>任务数</th>
-                <th>成本估算</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>Claude Sonnet 4.5</td><td>SWE-bench</td><td>60</td><td>$370</td></tr>
-              <tr><td>Claude Sonnet 4.5</td><td>Polyglot</td><td>60</td><td>$60</td></tr>
-              <tr><td>Claude Haiku 4.5</td><td>SWE-bench</td><td>60</td><td>$120</td></tr>
-              <tr><td>Claude Haiku 4.5</td><td>Polyglot</td><td>60</td><td>$20</td></tr>
-            </tbody>
-          </table>
-          <p><strong>总体估算</strong>：SWE-bench 每种方法约 <strong>$13,000</strong>；Polyglot 每种方法约 <strong>$1,500</strong>。GEA 和 DGM 生成相同数量的智能体，总体成本非常接近。</p>
-        </div>
+        <h3>成本估算</h3>
+        <p>SWE-bench: ~$13,000/方法 | Polyglot: ~$1,500/方法。GEA 与 DGM 生成相同数量智能体，成本接近。</p>
       </div>
     </section>
 
     <!-- Boundaries -->
-    <section class="section section--ash" id="boundaries">
-      <div class="section__content fade-in">
-        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">边界与限制</h2>
-        <p class="section__subtitle" style="margin-bottom: 16px;">GEA 的适用范围与已知局限</p>
-
-        <div class="boundary-cards">
-          <div class="boundary-card boundary-card--scope fade-in">
-            <h4 class="boundary-card__title">适用范围</h4>
-            <p class="boundary-card__desc">主要针对<strong>编码智能体</strong>的开放式自我改进。适用于需要智能体修改自身框架（工作流、工具使用、提示策略）的场景。在仓库级软件工程（SWE-bench）和多语言代码合成（Polyglot）任务上已验证。</p>
-          </div>
-          <div class="boundary-card boundary-card--limit fade-in">
-            <h4 class="boundary-card__title">计算成本</h4>
-            <p class="boundary-card__desc">完整运行一次约需 <strong>$13,000</strong>（SWE-bench）或 <strong>$1,500</strong>（Polyglot）。依赖 LLM 能力：反思模块需要 GPT-o1，进化和执行模块需要 Claude Haiku/Sonnet 4.5。</p>
-          </div>
-          <div class="boundary-card boundary-card--risk fade-in">
-            <h4 class="boundary-card__title">对齐风险</h4>
-            <p class="boundary-card__desc">开放式探索可能意外引入<strong>偏离人类目标</strong>的进化方向。补丁可能产生越来越复杂、难以完全理解的系统。需要沙箱隔离限制对宿主系统的潜在影响。</p>
-          </div>
-          <div class="boundary-card boundary-card--limit fade-in">
-            <h4 class="boundary-card__title">不适用场景</h4>
-            <p class="boundary-card__desc"><strong>非编码任务</strong>：论文聚焦编码能力进化，虽范式有更广泛潜在应用（如减轻偏见），但未在其他领域验证。<strong>需要模型特定优化的场景</strong>：GEA 的改进主要来自工作流和工具增强，而非模型特定的提示优化。</p>
-          </div>
+    <section class="section" id="boundaries" style="background-image: url('https://images.unsplash.com/photo-1454789548928-9efd52dc4031?auto=format&fit=crop&w=1920&q=80');">
+      <h2>边界与限制</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h4>适用范围</h4>
+          <p>主要针对编码智能体的开放式自我改进。适用于需要智能体修改自身框架（工作流、工具使用、提示策略）的场景。</p>
+        </div>
+        <div class="card">
+          <h4>计算成本</h4>
+          <p>完整运行一次约需 $13,000 (SWE-bench) 或 $1,500 (Polyglot)。依赖 GPT-o1 与 Claude 4.5 系列模型。</p>
+        </div>
+        <div class="card">
+          <h4>对齐风险</h4>
+          <p>开放式探索可能意外引入偏离人类目标的进化方向。补丁可能产生越来越复杂、难以完全理解的系统。</p>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-      <div class="footer__links">
-        <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="footer__link">arXiv 论文</a>
-        <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="footer__link">GitHub</a>
-        <a href="https://huggingface.co/papers/2602.04837" target="_blank" class="footer__link">Hugging Face</a>
-        <a href="https://arxiv.org/html/2602.04837v1" target="_blank" class="footer__link">HTML 版本</a>
+      <div style="margin-bottom: 24px;">
+        <a href="https://arxiv.org/abs/2602.04837" target="_blank">arXiv</a>
+        <a href="https://github.com/eric-ai-lab/GEA" target="_blank">GitHub</a>
+        <a href="https://huggingface.co/papers/2602.04837" target="_blank">Hugging Face</a>
+        <a href="https://arxiv.org/html/2602.04837v1" target="_blank">HTML</a>
       </div>
-      <p class="footer__copy">arXiv:2602.04837 — 加州大学圣塔芭芭拉分校 · Eric AI Lab, 2026</p>
+      <p style="font-size: 11px; color: rgba(240,240,250,0.4); text-transform: uppercase; letter-spacing: 1px;">arXiv:2602.04837 — UCSB · Eric AI Lab, 2026</p>
     </footer>
 
     <script>
-      // Navigation scroll behavior
       const nav = document.getElementById('nav');
-
       window.addEventListener('scroll', () => {
-        if (!nav) return;
-        if (window.scrollY > 80) {
-          nav.classList.add('scrolled');
-        } else {
-          nav.classList.remove('scrolled');
-        }
-      });
-
-      // Fade-in on scroll using IntersectionObserver
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-            }
-          });
-        },
-        { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-      );
-
-      document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
-
-      // Smooth scroll for nav links
-      document.querySelectorAll('.nav-links a[href^="#"]').forEach((link) => {
-        link.addEventListener('click', (e) => {
-          e.preventDefault();
-          const href = link.getAttribute('href');
-          if (href) {
-            const target = document.querySelector(href);
-            if (target) {
-              target.scrollIntoView({ behavior: 'smooth' });
-            }
-          }
-        });
+        if (window.scrollY > 50) nav.classList.add('scrolled');
+        else nav.classList.remove('scrolled');
       });
     </script>
   </body>
