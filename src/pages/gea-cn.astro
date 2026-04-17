@@ -21,13 +21,14 @@ isPage: true
     <meta name="twitter:description" content="基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%。" />
     <meta name="twitter:image" content="https://www.theoku.com/gea-architecture-dark.png" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
     <style>
       :root {
         --black: #000000;
         --white: #f0f0fa;
         --ghost-bg: rgba(240, 240, 250, 0.1);
         --ghost-border: rgba(240, 240, 250, 0.35);
-        --overlay: rgba(0, 0, 0, 0.6);
+        --overlay: rgba(0, 0, 0, 0.65);
       }
       *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
       html { scroll-behavior: smooth; }
@@ -86,31 +87,15 @@ isPage: true
         font-family: 'Courier New', monospace; font-size: 13px; color: var(--white);
       }
 
-      /* === Buttons === */
-      .btn-group { display: flex; gap: 16px; margin-top: 32px; flex-wrap: wrap; }
-      .btn {
-        display: inline-flex; align-items: center; justify-content: center;
-        padding: 16px 36px;
-        background: var(--ghost-bg);
-        border: 1px solid var(--ghost-border);
-        border-radius: 32px;
-        color: var(--white);
-        text-decoration: none;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        font-size: 13px; font-weight: 700;
-        transition: background 0.3s, border-color 0.3s, transform 0.2s;
-      }
-      .btn:hover { background: rgba(240,240,250,0.2); border-color: var(--white); transform: translateY(-2px); }
-
       /* === Components === */
       .formula-block {
-        background: rgba(255,255,255,0.04); border: 1px solid rgba(240,240,250,0.15);
-        padding: 24px; border-radius: 4px; margin: 24px 0;
-        font-family: 'Courier New', monospace; font-size: 15px; color: var(--white);
-        max-width: 700px; text-align: center;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(240,240,250,0.15);
+        padding: 28px 24px; border-radius: 4px; margin: 28px 0;
+        max-width: 750px; text-align: center;
+        overflow-x: auto;
       }
-      .formula-label { font-size: 11px; color: rgba(240,240,250,0.5); margin-bottom: 8px; letter-spacing: 1.5px; }
+      .formula-label { font-size: 11px; color: rgba(240,240,250,0.5); margin-bottom: 12px; letter-spacing: 1.5px; text-transform: uppercase; }
+      .katex { font-size: 1.1em; color: var(--white); }
 
       table { width: 100%; border-collapse: collapse; margin: 24px 0; max-width: 900px; }
       th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(240,240,250,0.15); font-size: 13px; }
@@ -123,12 +108,32 @@ isPage: true
       .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
       .card p { font-size: 13px; color: rgba(240,240,250,0.7); margin: 0; }
 
-      .arch-img { width: 100%; max-width: 1000px; border-radius: 4px; margin: 32px 0; border: 1px solid rgba(240,240,250,0.1); }
+      .arch-img { 
+        width: 100%; max-width: 1000px; border-radius: 4px; margin: 32px 0; 
+        border: 1px solid rgba(240,240,250,0.1);
+        mix-blend-mode: multiply;
+        background: #000;
+      }
       .step-list { list-style: none; padding: 0; counter-reset: step; }
       .step-list li { counter-increment: step; padding: 16px 0; border-bottom: 1px solid rgba(240,240,250,0.1); display: flex; gap: 16px; align-items: baseline; }
       .step-list li::before { content: counter(step, decimal-leading-zero); font-weight: 700; font-size: 14px; color: rgba(240,240,250,0.5); min-width: 28px; }
 
       .footer { padding: 60px 8vw; text-align: center; border-top: 1px solid rgba(240,240,250,0.1); }
+      .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 14px 32px;
+        background: var(--ghost-bg);
+        border: 1px solid var(--ghost-border);
+        border-radius: 32px;
+        color: var(--white);
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 12px; font-weight: 700;
+        transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      }
+      .btn:hover { background: rgba(240,240,250,0.2); border-color: var(--white); transform: translateY(-2px); }
       .footer a { color: rgba(240,240,250,0.6); text-decoration: none; margin: 0 16px; font-size: 12px; letter-spacing: 1px; transition: color 0.3s; }
       .footer a:hover { color: var(--white); }
 
@@ -153,7 +158,6 @@ isPage: true
         <li><a href="#algorithm">算法</a></li>
         <li><a href="#evolution">流程</a></li>
         <li><a href="#results">结果</a></li>
-        <li><a href="https://arxiv.org/abs/2602.04837" target="_blank">论文</a></li>
       </ul>
     </nav>
 
@@ -162,10 +166,6 @@ isPage: true
       <h3>University of California, Santa Barbara · Eric AI Lab</h3>
       <h1>GEA — 群体进化智能体</h1>
       <p style="font-size: 16px; max-width: 700px; margin-top: 16px;">基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%。零额外推理成本匹配人工工程化系统。</p>
-      <div class="btn-group">
-        <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn">阅读论文</a>
-        <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn">查看代码</a>
-      </div>
     </section>
 
     <!-- Abstract -->
@@ -237,21 +237,21 @@ isPage: true
         <h3>公式 1：余弦距离</h3>
         <div class="formula-block">
           <div class="formula-label">Cosine Distance</div>
-          d(i,j) = 1 - (z<sub>i</sub><sup>T</sup> · z<sub>j</sub>) / (||z<sub>i</sub>||₂ · ||z<sub>j</sub>||₂ + ε)
+          $$d(i,j) = 1 - \frac{z_i^\top z_j}{\|z_i\|_2 \|z_j\|_2 + \varepsilon}$$
         </div>
         <p>其中 ε 是数值稳定性的小常数。距离越大表示两个智能体的能力分布越不同。</p>
 
         <h3>公式 2：KNN Novelty</h3>
         <div class="formula-block">
           <div class="formula-label">KNN Novelty (M=4)</div>
-          nov(i) = (1/M) · Σ<sub>j ∈ N<sub>M</sub>(i)</sub> d(i,j)
+          $$\mathrm{nov}(i) = \frac{1}{M} \sum_{j \in \mathcal{N}_M(i)} d(i,j)$$
         </div>
         <p>N_M(i) 是与智能体 i 余弦距离最小的 M 个智能体的集合。实验中 M=4。</p>
 
         <h3>公式 3：Performance-Novelty 综合得分</h3>
         <div class="formula-block">
           <div class="formula-label">Selection Score</div>
-          score(i) = α<sub>i</sub> · √nov(i)
+          $$\mathrm{score}(i) = \alpha_i \cdot \sqrt{\mathrm{nov}(i)}$$
         </div>
         <p>性能作为主要选择标准，新颖性作为温和的偏差，实现利用与探索之间的平衡。</p>
       </div>
@@ -335,6 +335,10 @@ isPage: true
 
     <!-- Footer -->
     <footer class="footer">
+      <div class="footer-links">
+        <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn">阅读论文</a>
+        <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn">查看代码</a>
+      </div>
       <div style="margin-bottom: 24px;">
         <a href="https://arxiv.org/abs/2602.04837" target="_blank">arXiv</a>
         <a href="https://github.com/eric-ai-lab/GEA" target="_blank">GitHub</a>
@@ -344,12 +348,24 @@ isPage: true
       <p style="font-size: 11px; color: rgba(240,240,250,0.4); text-transform: uppercase; letter-spacing: 1px;">arXiv:2602.04837 — UCSB · Eric AI Lab, 2026</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
     <script>
-      const nav = document.getElementById('nav');
-      window.addEventListener('scroll', () => {
-        if (!nav) return;
-        if (window.scrollY > 50) nav.classList.add('scrolled');
-        else nav.classList.remove('scrolled');
+      document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+          if (!nav) return;
+          if (window.scrollY > 50) nav.classList.add('scrolled');
+          else nav.classList.remove('scrolled');
+        });
       });
     </script>
   </body>
