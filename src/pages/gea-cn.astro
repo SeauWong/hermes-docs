@@ -908,10 +908,10 @@ isPage: true
 
         <div class="detail-block">
           <h3>Archive（档案库）</h3>
-          <p>符号：<code>𝒜</code>。存储进化过程中发现的所有智能体。每个智能体 <code>i</code> 用<strong>任务成功向量</strong> <code>z_i ∈ {0,1}^D</code> 表示，并关联性能分数 <code>α_i</code>。其中 D 是探测任务集合的大小，每个维度表示智能体是否成功解决对应的探测任务。</p>
+          <p>符号：<code>𝒜</code>。存储进化过程中发现的所有智能体。每个智能体 <code>i</code> 用<strong>任务成功向量</strong> <code>z_i ∈ &#123;0,1&#125;^D</code> 表示，并关联性能分数 <code>α_i</code>。其中 D 是探测任务集合的大小，每个维度表示智能体是否成功解决对应的探测任务。</p>
 
           <h3>智能体表示</h3>
-          <p>任务成功向量 <code>z_i ∈ {0,1}^D</code> 是 GEA 表征智能体编码能力分布的核心数据结构：</p>
+          <p>任务成功向量 <code>z_i ∈ &#123;0,1&#125;^D</code> 是 GEA 表征智能体编码能力分布的核心数据结构：</p>
           <ul>
             <li><code>z_i[d] = 1</code>：智能体成功解决了第 d 个探测任务</li>
             <li><code>z_i[d] = 0</code>：智能体未能解决第 d 个探测任务</li>
@@ -941,7 +941,7 @@ isPage: true
           <p>智能体 i 的新颖性定义为其到 M 个最近邻的平均余弦距离：</p>
           <div class="formula-block">
             <div class="formula-label">KNN Novelty (M=4)</div>
-            nov(i) = (1/M) · Σ_{j ∈ N_M(i)} d(i,j)
+            nov(i) = (1/M) · Σ_&#123;j ∈ N_M(i)&#125; d(i,j)
           </div>
           <p>其中 N_M(i) 是与智能体 i 余弦距离最小的 M 个智能体的集合。实验中 M=4。</p>
 
@@ -1023,9 +1023,9 @@ isPage: true
             <li><code>L_i</code>：执行日志（完整的工具调用历史和工作流）</li>
             <li><code>O_i</code>：评估结果（暴露失败模式和框架级改进方向）</li>
           </ul>
-          <p>即 <code>T_i = {P_i^Applied, P_i^pred, L_i, O_i}</code></p>
+          <p>即 <code>T_i = &#123;P_i^Applied, P_i^pred, L_i, O_i&#125;</code></p>
 
-          <p><strong>聚合群体级经验：</strong><code>S = ∪_{a_j ∈ 𝒢} T_j</code></p>
+          <p><strong>聚合群体级经验：</strong><code>S = ∪_&#123;a_j ∈ 𝒢&#125; T_j</code></p>
 
           <p><strong>对每个智能体 a_i ∈ 𝒢 执行：</strong></p>
           <ol>
@@ -1033,7 +1033,7 @@ isPage: true
             <li><strong>进化（Evolution）</strong>：<code>π_i' ← Evolve(a_i; Δ_i)</code> — 生成框架级补丁</li>
             <li><strong>执行（Acting）</strong>：<code>a_i' ← ApplyPatch(a_i, π_i')</code> — 应用补丁</li>
             <li><strong>评估</strong>：<code>ActAndEvaluate(a_i'; 𝒯)</code> — 在下游编程任务上评估</li>
-            <li><strong>档案更新</strong>：如果 a_i' 能编译且具备基本编码功能，则加入档案库 <code>𝒜 ← 𝒜 ∪ {a_i'}</code></li>
+            <li><strong>档案更新</strong>：如果 a_i' 能编译且具备基本编码功能，则加入档案库 <code>𝒜 ← 𝒜 ∪ &#123;a_i'&#125;</code></li>
           </ol>
         </div>
 
