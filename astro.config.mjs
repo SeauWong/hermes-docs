@@ -8,8 +8,9 @@ export default defineConfig({
       description: 'A small Starlight site for essays on philosophy, reading, and related topics.',
       sidebar: [
         {
-          label: 'Works',
+          label: 'Notes',
           items: [
+            { label: 'GEA: Group-Evolving Agents', link: '/gea/' },
             { slug: 'tractatus-logico-philosophicus' },
             { slug: 'philosophical-investigations' },
           ],

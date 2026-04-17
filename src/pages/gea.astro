@@ -1,0 +1,1086 @@
+---
+layout: false
+isPage: true
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GEA — Group-Evolving Agents</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
+    <style>
+      /* === Reset & Base === */
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+      /* === Typography === */
+      @font-face {
+        font-family: 'Display';
+        src: local('Inter'), local('-apple-system'), local('Arial');
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: 'Text';
+        src: local('Inter'), local('-apple-system'), local('Arial');
+        font-weight: 400;
+      }
+      @font-face {
+        font-family: 'Text';
+        src: local('Inter'), local('-apple-system'), local('Arial');
+        font-weight: 500;
+      }
+
+      :root {
+        --electric-blue: #3E6AE1;
+        --pure-white: #FFFFFF;
+        --carbon-dark: #171A20;
+        --graphite: #393C41;
+        --pewter: #5C5E62;
+        --silver-fog: #8E8E8E;
+        --cloud-gray: #EEEEEE;
+        --pale-silver: #D0D1D2;
+        --light-ash: #F4F4F4;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        scroll-snap-type: y proximity;
+      }
+
+      body {
+        font-family: 'Text', -apple-system, Arial, sans-serif;
+        font-weight: 400;
+        color: var(--graphite);
+        background: var(--pure-white);
+        line-height: 1.43;
+        font-size: 14px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* === Navigation === */
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px 24px;
+        transition: background-color 0.33s, backdrop-filter 0.33s;
+      }
+
+      .nav.scrolled {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+      }
+
+      .nav-logo {
+        position: absolute;
+        left: 24px;
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: var(--pure-white);
+        text-decoration: none;
+        transition: color 0.33s;
+      }
+
+      .nav.scrolled .nav-logo {
+        color: var(--carbon-dark);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+      }
+
+      .nav-links a {
+        font-family: 'Text', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--pure-white);
+        text-decoration: none;
+        padding: 4px 16px;
+        border-radius: 4px;
+        transition: color 0.33s, background-color 0.33s;
+      }
+
+      .nav.scrolled .nav-links a {
+        color: var(--carbon-dark);
+      }
+
+      .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .nav.scrolled .nav-links a:hover {
+        background: var(--light-ash);
+      }
+
+      /* === Section Base === */
+      .section {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 24px;
+        scroll-snap-align: start;
+        position: relative;
+      }
+
+      .section--dark {
+        background: var(--carbon-dark);
+        color: var(--pure-white);
+      }
+
+      .section--light {
+        background: var(--pure-white);
+      }
+
+      .section--ash {
+        background: var(--light-ash);
+      }
+
+      .section__content {
+        max-width: 1383px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .section__title {
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: normal;
+        color: var(--carbon-dark);
+      }
+
+      .section__subtitle {
+        font-family: 'Text', -apple-system, Arial, sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 1.43;
+        color: var(--pewter);
+        margin-top: 16px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .section--dark .section__title { color: var(--pure-white); }
+      .section--dark .section__subtitle { color: rgba(255, 255, 255, 0.7); }
+
+      /* === Hero Section === */
+      .hero {
+        background: var(--carbon-dark);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 60% at 50% 40%, rgba(62, 106, 225, 0.15) 0%, transparent 70%),
+          radial-gradient(ellipse 50% 40% at 30% 60%, rgba(62, 106, 225, 0.08) 0%, transparent 60%),
+          radial-gradient(ellipse 50% 40% at 70% 60%, rgba(62, 106, 225, 0.08) 0%, transparent 60%);
+        animation: heroGlow 8s ease-in-out infinite alternate;
+      }
+
+      @keyframes heroGlow {
+        0% { opacity: 0.6; transform: scale(1); }
+        100% { opacity: 1; transform: scale(1.05); }
+      }
+
+      .hero__content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero__label {
+        font-family: 'Text', -apple-system, Arial, sans-serif;
+        font-weight: 400;
+        font-size: 22px;
+        color: var(--electric-blue);
+        margin-bottom: 8px;
+        opacity: 0.9;
+      }
+
+      .hero__title {
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: clamp(48px, 8vw, 96px);
+        line-height: 1.05;
+        color: var(--pure-white);
+        letter-spacing: normal;
+        opacity: 0.92;
+      }
+
+      .hero__tagline {
+        font-family: 'Text', -apple-system, Arial, sans-serif;
+        font-weight: 400;
+        font-size: clamp(16px, 2vw, 22px);
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 16px;
+        line-height: 1.43;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero__meta {
+        font-size: 14px;
+        color: var(--silver-fog);
+        margin-top: 24px;
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .hero__meta span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .hero__buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        margin-top: 40px;
+        flex-wrap: wrap;
+      }
+
+      /* === Buttons === */
+      .btn {
+        font-family: 'Text', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 1.2;
+        border-radius: 4px;
+        min-height: 40px;
+        width: 200px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        cursor: pointer;
+        border: 3px solid transparent;
+        box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 2px inset;
+        transition: border-color 0.33s, background-color 0.33s, color 0.33s, box-shadow 0.25s;
+      }
+
+      .btn--primary {
+        background: var(--electric-blue);
+        color: var(--pure-white);
+      }
+
+      .btn--primary:hover {
+        background: #3458c4;
+      }
+
+      .btn--secondary {
+        background: var(--pure-white);
+        color: var(--graphite);
+      }
+
+      .btn--secondary:hover {
+        background: var(--light-ash);
+      }
+
+      .btn--outline {
+        background: transparent;
+        color: var(--pure-white);
+        border-color: var(--pure-white);
+      }
+
+      .btn--outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .btn--dark-outline {
+        background: transparent;
+        color: var(--carbon-dark);
+        border-color: var(--carbon-dark);
+      }
+
+      .btn--dark-outline:hover {
+        background: var(--light-ash);
+      }
+
+      /* === Scroll Indicator === */
+      .scroll-indicator {
+        position: absolute;
+        bottom: 32px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1;
+        animation: bounce 2s ease-in-out infinite;
+      }
+
+      .scroll-indicator svg {
+        width: 24px;
+        height: 24px;
+        stroke: rgba(255, 255, 255, 0.4);
+        stroke-width: 2;
+        fill: none;
+      }
+
+      @keyframes bounce {
+        0%, 100% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(8px); }
+      }
+
+      /* === Abstract Section === */
+      .abstract__text {
+        font-size: 18px;
+        line-height: 1.8;
+        color: var(--graphite);
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: left;
+      }
+
+      .abstract__text::first-letter {
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-size: 48px;
+        font-weight: 500;
+        color: var(--electric-blue);
+        float: left;
+        line-height: 1;
+        margin-right: 8px;
+        margin-top: 4px;
+      }
+
+      /* === Concept Cards === */
+      .concepts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 48px;
+      }
+
+      .concept {
+        padding: 40px 32px;
+        text-align: left;
+        transition: background-color 0.33s;
+        border-radius: 12px;
+      }
+
+      .concept__icon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 16px;
+        color: var(--electric-blue);
+      }
+
+      .concept__title {
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 20px;
+        line-height: 1.2;
+        color: var(--carbon-dark);
+        margin-bottom: 12px;
+      }
+
+      .concept__desc {
+        font-size: 14px;
+        line-height: 1.43;
+        color: var(--pewter);
+      }
+
+      /* === Benchmark Section === */
+      .benchmarks {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 48px;
+        margin-top: 64px;
+      }
+
+      .benchmark {
+        text-align: center;
+      }
+
+      .benchmark__value {
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: clamp(48px, 6vw, 72px);
+        line-height: 1;
+        color: var(--electric-blue);
+      }
+
+      .benchmark__label {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--carbon-dark);
+        margin-top: 8px;
+      }
+
+      .benchmark__detail {
+        font-size: 13px;
+        color: var(--silver-fog);
+        margin-top: 4px;
+      }
+
+      /* === Bar Chart === */
+      .chart {
+        margin-top: 48px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 100%;
+      }
+
+      .chart__bar-group {
+        margin-bottom: 24px;
+      }
+
+      .chart__bar-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .chart__bar-name {
+        font-weight: 500;
+        color: var(--carbon-dark);
+      }
+
+      .chart__bar-value {
+        font-weight: 500;
+        color: var(--graphite);
+      }
+
+      .chart__bar-track {
+        width: 100%;
+        height: 8px;
+        background: var(--cloud-gray);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .chart__bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.66s cubic-bezier(0.5, 0, 0, 0.75);
+      }
+
+      .chart__bar-fill--primary {
+        background: var(--electric-blue);
+      }
+
+      .chart__bar-fill--secondary {
+        background: var(--pale-silver);
+      }
+
+      /* === Architecture Section === */
+      .arch-flow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin-top: 48px;
+        flex-wrap: wrap;
+      }
+
+      .arch-step {
+        padding: 24px 20px;
+        min-width: 140px;
+        text-align: center;
+        border-radius: 4px;
+        background: var(--pure-white);
+        transition: background-color 0.33s;
+      }
+
+      .arch-step__number {
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 24px;
+        color: var(--electric-blue);
+        margin-bottom: 8px;
+      }
+
+      .arch-step__title {
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--carbon-dark);
+        margin-bottom: 4px;
+      }
+
+      .arch-step__desc {
+        font-size: 12px;
+        color: var(--pewter);
+      }
+
+      .arch-arrow {
+        color: var(--pale-silver);
+        flex-shrink: 0;
+      }
+
+      .arch-arrow svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* === Timeline === */
+      .timeline {
+        position: relative;
+        max-width: 700px;
+        margin: 48px auto 0;
+        text-align: left;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: var(--cloud-gray);
+      }
+
+      .timeline__item {
+        position: relative;
+        padding-left: 56px;
+        padding-bottom: 32px;
+      }
+
+      .timeline__item:last-child {
+        padding-bottom: 0;
+      }
+
+      .timeline__dot {
+        position: absolute;
+        left: 12px;
+        top: 4px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--pure-white);
+        border: 3px solid var(--electric-blue);
+      }
+
+      .timeline__title {
+        font-weight: 500;
+        font-size: 16px;
+        color: var(--carbon-dark);
+        margin-bottom: 4px;
+      }
+
+      .timeline__desc {
+        font-size: 14px;
+        line-height: 1.43;
+        color: var(--pewter);
+      }
+
+      /* === Comparison === */
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        margin-top: 48px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .comparison__col {
+        padding: 32px;
+        border-radius: 12px;
+        text-align: left;
+      }
+
+      .comparison__col--old {
+        background: var(--light-ash);
+      }
+
+      .comparison__col--new {
+        background: rgba(62, 106, 225, 0.06);
+      }
+
+      .comparison__label {
+        font-weight: 500;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--silver-fog);
+        margin-bottom: 12px;
+      }
+
+      .comparison__col--new .comparison__label {
+        color: var(--electric-blue);
+      }
+
+      .comparison__heading {
+        font-family: 'Display', -apple-system, Arial, sans-serif;
+        font-weight: 500;
+        font-size: 24px;
+        color: var(--carbon-dark);
+        margin-bottom: 16px;
+      }
+
+      .comparison__item {
+        font-size: 14px;
+        color: var(--graphite);
+        padding: 8px 0;
+        border-bottom: 1px solid var(--cloud-gray);
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .comparison__item:last-child {
+        border-bottom: none;
+      }
+
+      .comparison__check {
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+
+      /* === Footer === */
+      .footer {
+        padding: 48px 24px;
+        text-align: center;
+        border-top: 1px solid var(--cloud-gray);
+      }
+
+      .footer__links {
+        display: flex;
+        gap: 32px;
+        justify-content: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .footer__link {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--pewter);
+        text-decoration: none;
+        transition: box-shadow 0.33s, color 0.33s;
+      }
+
+      .footer__link:hover {
+        color: var(--carbon-dark);
+      }
+
+      .footer__copy {
+        font-size: 12px;
+        color: var(--silver-fog);
+      }
+
+      /* === Responsive === */
+      @media (max-width: 768px) {
+        .nav-links { display: none; }
+        .hero__buttons { flex-direction: column; align-items: center; }
+        .btn { width: 100%; max-width: 300px; }
+        .concepts { grid-template-columns: 1fr; }
+        .benchmarks { grid-template-columns: 1fr 1fr; }
+        .comparison { grid-template-columns: 1fr; }
+        .arch-flow { flex-direction: column; }
+        .arch-arrow { transform: rotate(90deg); }
+        .hero__meta { flex-direction: column; gap: 8px; align-items: center; }
+      }
+
+      @media (max-width: 480px) {
+        .benchmarks { grid-template-columns: 1fr; }
+      }
+
+      /* === Fade-in animation === */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.66s cubic-bezier(0.5, 0, 0, 0.75),
+                    transform 0.66s cubic-bezier(0.5, 0, 0, 0.75);
+      }
+
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+      <a href="/" class="nav-logo">GEA</a>
+      <ul class="nav-links">
+        <li><a href="#abstract">Abstract</a></li>
+        <li><a href="#concepts">Concepts</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#benchmarks">Results</a></li>
+        <li><a href="https://arxiv.org/abs/2602.04837" target="_blank">Paper</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="section hero" id="hero">
+      <div class="hero__content">
+        <p class="hero__label">UC Santa Barbara</p>
+        <h1 class="hero__title">GEA</h1>
+        <p class="hero__tagline">Group-Evolving Agents — Open-Ended Self-Improvement via Experience Sharing</p>
+        <div class="hero__meta">
+          <span>arXiv:2602.04837</span>
+          <span>Feb 2026</span>
+          <span>AI / Multi-Agent Systems</span>
+        </div>
+        <div class="hero__buttons">
+          <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn btn--primary">Read Paper</a>
+          <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn btn--outline">View Code</a>
+        </div>
+      </div>
+      <div class="scroll-indicator">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+    </section>
+
+    <!-- Abstract -->
+    <section class="section section--light" id="abstract">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">Abstract</h2>
+        <p class="section__subtitle" style="margin-bottom: 40px;">What the paper is about</p>
+        <p class="abstract__text">
+          Group-Evolving Agents (GEA) proposes a fundamentally new paradigm for open-ended self-improvement in AI systems. Rather than treating individual agents as the unit of evolution — the "lone wolf" approach that dominates current self-improving agent frameworks — GEA treats a group of agents as the fundamental evolutionary unit. Agents within the group can autonomously modify their own structural designs to advance capabilities and overcome limitations. A shared pool of experiences is inherited by every future agent as established fact, enabling initial exploratory diversity that evolves over time. On challenging coding benchmarks, GEA achieves 71.0% compared to 56.7% for prior self-evolving methods, and matches human-engineered AI systems on SWE-bench with zero additional inference cost.
+        </p>
+      </div>
+    </section>
+
+    <!-- Core Concepts -->
+    <section class="section section--ash" id="concepts">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">Core Concepts</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px;">The three pillars of GEA</p>
+        <div class="concepts">
+          <div class="concept fade-in">
+            <svg class="concept__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="9" cy="7" r="4"/><circle cx="15" cy="7" r="4"/><circle cx="9" cy="17" r="4"/><circle cx="15" cy="17" r="4"/>
+              <line x1="12.5" y1="7" x2="11.5" y2="7"/><line x1="9" y1="10.5" x2="9" y2="13.5"/><line x1="15" y1="10.5" x2="15" y2="13.5"/><line x1="12.5" y1="17" x2="11.5" y2="17"/>
+              <line x1="12" y1="11" x2="12" y2="13"/>
+            </svg>
+            <h3 class="concept__title">Group as Unit</h3>
+            <p class="concept__desc">Evolution operates at the group level, not the individual. Agents are generated, evaluated, and replaced collectively — like a population rather than a lone optimizer.</p>
+          </div>
+          <div class="concept fade-in">
+            <svg class="concept__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              <line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/>
+            </svg>
+            <h3 class="concept__title">Experience Sharing</h3>
+            <p class="concept__desc">A shared memory pool accumulates successful strategies and failures. Each new generation inherits the distilled wisdom of all prior agents in the group.</p>
+          </div>
+          <div class="concept fade-in">
+            <svg class="concept__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            <h3 class="concept__title">Open-Ended Growth</h3>
+            <p class="concept__desc">No predefined target capability. The system continuously discovers new strategies and incorporates them, enabling unbounded self-improvement over time.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paradigm Shift -->
+    <section class="section section--dark">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">A Paradigm Shift</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px; color: rgba(255,255,255,0.5);">From solitary evolution to collective intelligence</p>
+        <div class="comparison">
+          <div class="comparison__col comparison__col--old">
+            <p class="comparison__label">Before</p>
+            <h3 class="comparison__heading">Lone Agent</h3>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              Single agent optimizes in isolation
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              Limited exploration diversity
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              Knowledge lost between iterations
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8E8E8E" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </span>
+              Converges to local optimum
+            </div>
+          </div>
+          <div class="comparison__col comparison__col--new">
+            <p class="comparison__label">GEA</p>
+            <h3 class="comparison__heading">Group Evolution</h3>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              Population evolves collectively
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              Diverse exploration across agents
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              Shared experience pool persists
+            </div>
+            <div class="comparison__item">
+              <span class="comparison__check">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3E6AE1" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              Open-ended continuous improvement
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="section section--light" id="architecture">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">Architecture</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px;">How GEA works — the evolution loop</p>
+        <div class="arch-flow">
+          <div class="arch-step">
+            <div class="arch-step__number">01</div>
+            <div class="arch-step__title">Initialize</div>
+            <div class="arch-step__desc">Create a group of diverse agents with varied prompts and strategies</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">02</div>
+            <div class="arch-step__title">Execute</div>
+            <div class="arch-step__desc">Each agent independently attempts the target task</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">03</div>
+            <div class="arch-step__title">Evaluate</div>
+            <div class="arch-step__desc">Score agents on task performance and solution quality</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">04</div>
+            <div class="arch-step__title">Share</div>
+            <div class="arch-step__desc">Extract successful strategies into the shared experience pool</div>
+          </div>
+          <div class="arch-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+          <div class="arch-step">
+            <div class="arch-step__number">05</div>
+            <div class="arch-step__title">Evolve</div>
+            <div class="arch-step__desc">Replace weakest agents with new ones inheriting from the pool</div>
+          </div>
+        </div>
+
+        <div class="timeline" style="margin-top: 64px;">
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">Experience Pool</h4>
+            <p class="timeline__desc">A persistent, growing repository of strategies, lessons learned, and successful patterns. Every agent contributes; every new agent inherits.</p>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">Agent Diversity</h4>
+            <p class="timeline__desc">Initial agents are deliberately diverse — different system prompts, reasoning strategies, and tool-use patterns — ensuring broad initial exploration of the solution space.</p>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">Selection Pressure</h4>
+            <p class="timeline__desc">Underperforming agents are replaced. New agents are spawned using mutated prompts informed by the experience pool, creating a Darwinian improvement dynamic.</p>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__dot"></div>
+            <h4 class="timeline__title">Zero Inference Overhead</h4>
+            <p class="timeline__desc">At deployment time, only the best evolved agent runs. The evolution process is offline — no extra inference cost during production use.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benchmarks -->
+    <section class="section section--ash" id="benchmarks">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">Performance</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px;">Significant gains over prior self-evolving methods</p>
+        <div class="benchmarks">
+          <div class="benchmark">
+            <div class="benchmark__value">71.0%</div>
+            <div class="benchmark__label">Coding Benchmark</div>
+            <div class="benchmark__detail">GEA performance</div>
+          </div>
+          <div class="benchmark">
+            <div class="benchmark__value">56.7%</div>
+            <div class="benchmark__label">Previous SOTA</div>
+            <div class="benchmark__detail">Self-evolving methods</div>
+          </div>
+          <div class="benchmark">
+            <div class="benchmark__value">+14.3</div>
+            <div class="benchmark__label">Absolute Gain</div>
+            <div class="benchmark__detail">Percentage points</div>
+          </div>
+          <div class="benchmark">
+            <div class="benchmark__value">0</div>
+            <div class="benchmark__label">Inference Overhead</div>
+            <div class="benchmark__detail">At deployment time</div>
+          </div>
+        </div>
+
+        <div class="chart fade-in">
+          <div class="chart__bar-group">
+            <div class="chart__bar-label">
+              <span class="chart__bar-name">GEA (Group-Evolving Agents)</span>
+              <span class="chart__bar-value">71.0%</span>
+            </div>
+            <div class="chart__bar-track">
+              <div class="chart__bar-fill chart__bar-fill--primary" style="width: 71%;"></div>
+            </div>
+          </div>
+          <div class="chart__bar-group">
+            <div class="chart__bar-label">
+              <span class="chart__bar-name">Self-Evolving Methods (SOTA)</span>
+              <span class="chart__bar-value">56.7%</span>
+            </div>
+            <div class="chart__bar-track">
+              <div class="chart__bar-fill chart__bar-fill--secondary" style="width: 56.7%;"></div>
+            </div>
+          </div>
+          <div class="chart__bar-group">
+            <div class="chart__bar-label">
+              <span class="chart__bar-name">Human-Engineered Systems</span>
+              <span class="chart__bar-value">~71%</span>
+            </div>
+            <div class="chart__bar-track">
+              <div class="chart__bar-fill chart__bar-fill--secondary" style="width: 71%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience Sharing Deep Dive -->
+    <section class="section section--dark">
+      <div class="section__content fade-in">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">Experience Sharing</h2>
+        <p class="section__subtitle" style="margin-bottom: 16px; color: rgba(255,255,255,0.5);">The mechanism that makes GEA work</p>
+        <div style="max-width: 700px; margin: 0 auto; text-align: left; color: rgba(255,255,255,0.75); font-size: 16px; line-height: 1.8;">
+          <p style="margin-bottom: 24px;">
+            The core innovation of GEA is the <strong style="color: var(--electric-blue); font-weight: 500;">shared experience pool</strong>. Each agent in the group, when it successfully completes a task, contributes its strategy — the chain of reasoning, tool selections, and structural decisions — to this shared pool.
+          </p>
+          <p style="margin-bottom: 24px;">
+            When a new agent is spawned to replace an underperformer, it doesn't start from scratch. It <strong style="color: var(--electric-blue); font-weight: 500;">inherits the accumulated experience</strong> of all prior successful agents as established fact. This is fundamentally different from individual self-improvement, where each iteration only has its own past to learn from.
+          </p>
+          <p>
+            The result is a form of <strong style="color: var(--electric-blue); font-weight: 500;">cultural evolution</strong> — knowledge accumulates across the population, not just within a single lineage. This enables GEA to discover and retain diverse strategies that a single agent would never explore on its own.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SWE-bench Highlight -->
+    <section class="section section--light">
+      <div class="section__content fade-in" style="text-align: center;">
+        <h2 class="section__title" style="font-size: clamp(28px, 4vw, 40px); margin-bottom: 8px;">SWE-bench</h2>
+        <p class="section__subtitle" style="margin-bottom: 48px;">Matching human-engineered systems at zero extra cost</p>
+        <div style="display: flex; align-items: baseline; justify-content: center; gap: 8px; flex-wrap: wrap;">
+          <span style="font-family: 'Display', -apple-system, Arial, sans-serif; font-weight: 500; font-size: clamp(72px, 12vw, 128px); line-height: 1; color: var(--electric-blue);">71%</span>
+        </div>
+        <p style="font-size: 18px; color: var(--graphite); margin-top: 16px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+          GEA matches the performance of human-engineered AI systems on SWE-bench, the gold-standard benchmark for real-world software engineering tasks.
+        </p>
+        <p style="font-size: 14px; color: var(--silver-fog); margin-top: 16px;">
+          Zero additional inference cost at deployment — evolution happens offline.
+        </p>
+        <div style="margin-top: 40px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+          <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="btn btn--primary">Read Paper</a>
+          <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="btn btn--dark-outline">Source Code</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer__links">
+        <a href="https://arxiv.org/abs/2602.04837" target="_blank" class="footer__link">arXiv Paper</a>
+        <a href="https://github.com/eric-ai-lab/GEA" target="_blank" class="footer__link">GitHub</a>
+        <a href="https://huggingface.co/papers/2602.04837" target="_blank" class="footer__link">Hugging Face</a>
+        <a href="https://arxiv.org/html/2602.04837v1" target="_blank" class="footer__link">HTML Version</a>
+      </div>
+      <p class="footer__copy">arXiv:2602.04837 — UC Santa Barbara, 2026</p>
+    </footer>
+
+    <script>
+      // Navigation scroll behavior
+      const nav = document.getElementById('nav');
+
+      window.addEventListener('scroll', () => {
+        if (!nav) return;
+        if (window.scrollY > 80) {
+          nav.classList.add('scrolled');
+        } else {
+          nav.classList.remove('scrolled');
+        }
+      });
+
+      // Fade-in on scroll using IntersectionObserver
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+      );
+
+      document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
+
+      // Smooth scroll for nav links
+      document.querySelectorAll('.nav-links a[href^="#"]').forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const href = link.getAttribute('href');
+          if (href) {
+            const target = document.querySelector(href);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
