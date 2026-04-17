@@ -237,21 +237,21 @@ isPage: true
         <h3>公式 1：余弦距离</h3>
         <div class="formula-block">
           <div class="formula-label">Cosine Distance</div>
-          $$d(i,j) = 1 - \frac{z_i^\top z_j}{\|z_i\|_2 \|z_j\|_2 + \varepsilon}$$
+          {`$$d(i,j) = 1 - \\frac{z_i^\\top z_j}{\\|z_i\\|_2 \\|z_j\\|_2 + \\varepsilon}$$`}
         </div>
         <p>其中 ε 是数值稳定性的小常数。距离越大表示两个智能体的能力分布越不同。</p>
 
         <h3>公式 2：KNN Novelty</h3>
         <div class="formula-block">
           <div class="formula-label">KNN Novelty (M=4)</div>
-          $$\mathrm{nov}(i) = \frac{1}{M} \sum_{j \in \mathcal{N}_M(i)} d(i,j)$$
+          {`$$\\mathrm{nov}(i) = \\frac{1}{M} \\sum_{j \\in \\mathcal{N}_M(i)} d(i,j)$$`}
         </div>
         <p>N_M(i) 是与智能体 i 余弦距离最小的 M 个智能体的集合。实验中 M=4。</p>
 
         <h3>公式 3：Performance-Novelty 综合得分</h3>
         <div class="formula-block">
           <div class="formula-label">Selection Score</div>
-          $$\mathrm{score}(i) = \alpha_i \cdot \sqrt{\mathrm{nov}(i)}$$
+          {`$$\\mathrm{score}(i) = \\alpha_i \\cdot \\sqrt{\\mathrm{nov}(i)}$$`}
         </div>
         <p>性能作为主要选择标准，新颖性作为温和的偏差，实现利用与探索之间的平衡。</p>
       </div>
