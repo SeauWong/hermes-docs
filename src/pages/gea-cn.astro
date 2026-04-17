@@ -12,14 +12,14 @@ isPage: true
     <meta name="description" content="群体进化智能体（GEA）提出了一种全新的 AI 系统开放式自我改进范式。SWE-bench 71.0%，Polyglot 88.3%，零额外推理成本匹配人工工程化系统。" />
     <meta property="og:title" content="GEA — 群体进化智能体" />
     <meta property="og:description" content="基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%，零额外推理成本匹配人工工程化系统。" />
-    <meta property="og:image" content="https://www.theoku.com/gea-architecture.png" />
+    <meta property="og:image" content="https://www.theoku.com/gea-architecture-dark.png" />
     <meta property="og:url" content="https://www.theoku.com/gea-cn/" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="zh_CN" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="GEA — 群体进化智能体" />
     <meta name="twitter:description" content="基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%。" />
-    <meta name="twitter:image" content="https://www.theoku.com/gea-architecture.png" />
+    <meta name="twitter:image" content="https://www.theoku.com/gea-architecture-dark.png" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
     <style>
       :root {
@@ -159,7 +159,7 @@ isPage: true
 
     <!-- Hero -->
     <section class="section" style="background-image: url('https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=1920&q=80');">
-      <h3>加州大学圣塔芭芭拉分校 · Eric AI Lab</h3>
+      <h3>University of California, Santa Barbara · Eric AI Lab</h3>
       <h1>GEA — 群体进化智能体</h1>
       <p style="font-size: 16px; max-width: 700px; margin-top: 16px;">基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%。零额外推理成本匹配人工工程化系统。</p>
       <div class="btn-group">
@@ -223,7 +223,7 @@ isPage: true
     <section class="section" id="architecture" style="background-image: url('https://images.unsplash.com/photo-1518364538800-6bae3c2ea0f2?auto=format&fit=crop&w=1920&q=80');">
       <h2>系统架构</h2>
       <p>GEA 的三大核心组件：Archive → Parent Group Selection → Group Evolution</p>
-      <img src="/gea-architecture.png" alt="GEA 系统架构图" class="arch-img" loading="lazy" />
+      <img src="/gea-architecture-dark.png" alt="GEA 系统架构图" class="arch-img" loading="lazy" />
       <div style="max-width: 800px;">
         <h3>Archive（档案库）</h3>
         <p>符号：𝒜。存储进化过程中发现的所有智能体。每个智能体 i 用任务成功向量 z<sub>i</sub> ∈ {'{0,1}'}<sup>D</sup> 表示，并关联性能分数 α<sub>i</sub>。其中 D 是探测任务集合的大小，每个维度表示智能体是否成功解决对应的探测任务。</p>
@@ -260,7 +260,7 @@ isPage: true
     <!-- Evolution Flow -->
     <section class="section" id="evolution" style="background-image: url('https://images.unsplash.com/photo-1457364559154-aa2644600ebb?auto=format&fit=crop&w=1920&q=80');">
       <h2>进化流程</h2>
-      <img src="/gea-evolution-cycle.png" alt="GEA 进化循环流程图" class="arch-img" loading="lazy" />
+      <img src="/gea-evolution-cycle-dark.png" alt="GEA 进化循环流程图" class="arch-img" loading="lazy" />
       <div style="max-width: 800px;">
         <ol class="step-list">
           <li><strong>父代群体选择</strong>：计算余弦距离 → 找出 M 个最近邻 → 计算新颖性 → 综合得分排序 → 选取 top-K 组成父代群体</li>
@@ -291,7 +291,7 @@ isPage: true
     <!-- Results -->
     <section class="section" id="results" style="background-image: url('https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=1920&q=80');">
       <h2>实验结果</h2>
-      <img src="/gea-benchmark.png" alt="GEA Benchmark 对比" class="arch-img" loading="lazy" />
+      <img src="/gea-benchmark-dark.png" alt="GEA Benchmark 对比" class="arch-img" loading="lazy" />
       <div style="max-width: 900px; width: 100%;">
         <table>
           <thead>
