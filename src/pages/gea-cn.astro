@@ -111,8 +111,8 @@ isPage: true
       .arch-img { 
         width: 100%; max-width: 1000px; border-radius: 4px; margin: 32px 0; 
         border: 1px solid rgba(240,240,250,0.1);
-        mix-blend-mode: multiply;
-        background: #000;
+        background: #0a0a0c;
+        padding: 16px;
       }
       .step-list { list-style: none; padding: 0; counter-reset: step; }
       .step-list li { counter-increment: step; padding: 16px 0; border-bottom: 1px solid rgba(240,240,250,0.1); display: flex; gap: 16px; align-items: baseline; }
@@ -212,7 +212,7 @@ isPage: true
           <ul style="list-style: none; padding: 0;">
             <li>✓ 每次迭代选择 K 个智能体组成父代群体</li>
             <li>✓ 显式的群体内经验共享与复用</li>
-            <li>✓ 共享经验池 S = ∪T_j 聚合所有父代轨迹</li>
+            <li>✓ 共享经验池 {`\\(S = \\bigcup T_j\\)`} 聚合所有父代轨迹</li>
             <li>✓ Top-1 智能体整合了 17 个祖先 (28.3%)，DGM 仅 9 个 (15.0%)</li>
           </ul>
         </div>
@@ -226,7 +226,7 @@ isPage: true
       <img src="/gea-architecture-dark.png" alt="GEA 系统架构图" class="arch-img" loading="lazy" />
       <div style="max-width: 800px;">
         <h3>Archive（档案库）</h3>
-        <p>符号：𝒜。存储进化过程中发现的所有智能体。每个智能体 i 用任务成功向量 z<sub>i</sub> ∈ {'{0,1}'}<sup>D</sup> 表示，并关联性能分数 α<sub>i</sub>。其中 D 是探测任务集合的大小，每个维度表示智能体是否成功解决对应的探测任务。</p>
+        <p>符号：𝒜。存储进化过程中发现的所有智能体。每个智能体 i 用任务成功向量 {`\\(z_i \\in \\{0,1\\}^D\\)`} 表示，并关联性能分数 {`\\(\\alpha_i\\)`}。其中 D 是探测任务集合的大小，每个维度表示智能体是否成功解决对应的探测任务。</p>
       </div>
     </section>
 
@@ -264,10 +264,10 @@ isPage: true
       <div style="max-width: 800px;">
         <ol class="step-list">
           <li><strong>父代群体选择</strong>：计算余弦距离 → 找出 M 个最近邻 → 计算新颖性 → 综合得分排序 → 选取 top-K 组成父代群体</li>
-          <li><strong>收集轨迹</strong>：对每个父代智能体收集 P<sub>i</sub><sup>Applied</sup>, P<sub>i</sub><sup>pred</sup>, L<sub>i</sub>, O<sub>i</sub></li>
-          <li><strong>聚合经验</strong>：S = ∪<sub>a<sub>j</sub> ∈ 𝒢</sub> T<sub>j</sub></li>
-          <li><strong>反思与进化</strong>：Reflect(a_i; S) → Evolve → ApplyPatch</li>
-          <li><strong>评估与归档</strong>：编译检查 → 任务评估 → 加入档案库 𝒜 ← 𝒜 ∪ {'{'}a<sub>i</sub>{'}'}</li>
+          <li><strong>收集轨迹</strong>：对每个父代智能体收集 {`\\(\\mathcal{P}_i^{\\mathrm{Applied}}, \\mathcal{P}_i^{\\mathrm{pred}}, \\mathcal{L}_i, \\mathcal{O}_i\\)`}</li>
+          <li><strong>聚合经验</strong>：{`\\(S = \\bigcup_{a_j \\in \\mathcal{G}} T_j\\)`}</li>
+          <li><strong>反思与进化</strong>：{`\\(\\Delta_i \\leftarrow \\mathrm{Reflect}(a_i; S) \\to \\mathrm{Evolve} \\to \\mathrm{ApplyPatch}\\)`}</li>
+          <li><strong>评估与归档</strong>：编译检查 → 任务评估 → 加入档案库 {`\\(\\mathcal{A} \\leftarrow \\mathcal{A} \\cup \\{a_i'\\}\\)`}</li>
         </ol>
       </div>
     </section>
