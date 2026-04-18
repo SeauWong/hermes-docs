@@ -4,3 +4,5 @@ dist/
 .codex
 .env
 *.env
+.baoyu-skills/.env
+*.pdf
