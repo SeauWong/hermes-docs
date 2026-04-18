@@ -303,17 +303,19 @@ isPage: true
 
 ### 公式语法
 
-| 类型 | 语法 | 示例 |
-|------|------|------|
-| 独立公式 | `` {`$$...$$`} `` | `` {`$$d(i,j) = 1 - \\frac{z_i^\\top z_j}{\\|z_i\\|_2}$$`} `` |
-| 行内公式 | `` {`\\(...\\)`} `` | `` {`\\(z_i \\in \\{0,1\\}^D\\)`} `` |
+| 类型 | 纯 HTML 语法 | Astro (`.astro`) 语法 |
+|------|-------------|----------------------|
+| 独立公式 | `$$...$$` | `` {`$$...$$`} `` |
+| 行内公式 | `\(...\)` | `` {`\\(...\\)`} `` |
 
 ### ⚠️ 关键避坑
 
-1. **必须用模板字面量包裹**：Astro 会把 `{}` 当作模板表达式解析，必须用 `` {`$$...$$`} `` 或 `` {`\\(...\\)`} `` 包裹
-2. **反斜杠必须双写**：LaTeX 的 `\frac` 要写成 `\\frac`，`\mathcal` 写成 `\\mathcal`
-3. **花括号必须转义**：`{0,1}` 写成 `\\{0,1\\}`
-4. **`// @ts-ignore` 不可少**：`renderMathInElement` 是 CDN 加载的全局函数，TypeScript 不认识
+1. **Astro vs 纯 HTML 的区别**：
+   - **`.astro` 文件**：Astro 模板引擎会把 `{}` 解析为 JS 表达式，**必须**用 `` {`$$...$$`} `` 包裹，且 LaTeX 反斜杠需要**双写**（`\\frac`）
+   - **纯 `.html` 文件**：KaTeX auto-render 直接解析页面文本，**直接写** `$$...$$` 和 `\(...\)`，反斜杠**只需一个**（`\frac`）
+   - **从 Astro 迁移到纯 HTML 时**：必须移除 `{``...``}` 外壳，将 `\\` 改为 `\`
+2. **花括号必须转义**：纯 HTML 中 LaTeX 的花括号保持原样即可（`\{0,1\}`），KaTeX auto-render 能正确解析
+3. **`// @ts-ignore` 不可少**：`renderMathInElement` 是 CDN 加载的全局函数，TypeScript 不认识
 
 ## 步骤 5：OG 分享标签
 
@@ -448,7 +450,9 @@ https://images.unsplash.com/photo-{ID}?auto=format&fit=crop&w=1920&q=80
 
 | 问题 | 原因 | 解决方案 |
 |------|------|---------|
-| `{}` 被当作 JS 表达式 | Astro 模板语法 | 用 `` {`...`} `` 包裹 |
+| `{}` 被当作 JS 表达式 | Astro 模板语法 | 用 `` {`...`} `` 包裹（仅 `.astro` 文件，纯 HTML 不需要） |
+| 纯 HTML 中公式不渲染 | 用了 Astro 模板字面量 `` {`$$...$$`} `` | 改为直接写 `$$...$$`，去掉 `{``...``}` 包裹 |
+| 反斜杠被吞掉 | Astro 中未双写反斜杠 | Astro 中 `\\frac`，纯 HTML 中 `\frac` |
 | `getElementById` 返回 null | TypeScript 严格检查 | 加 `if (!el) return;` 守卫 |
 | CDN 全局函数报错 | TS 不认识全局变量 | 加 `// @ts-ignore` |
 | `layout: false` 警告 | Astro 的 frontmatter 检查 | 忽略，不影响构建 |
@@ -461,6 +465,8 @@ https://images.unsplash.com/photo-{ID}?auto=format&fit=crop&w=1920&q=80
 | `mix-blend-mode` 整图变黑 | multiply 混合模式对白色无效 | 改用 `background: #0a0a0c` 容器 |
 | 429 频率限制 | DashScope RPM 限制 | 每次间隔 30-45 秒 |
 | 401 API Key 无效 | Key 格式错误或未开通服务 | 确认 `sk-` 前缀，检查阿里云控制台 |
+| Unsplash 背景图 404 | `images.unsplash.com/photo-{id}` 仅兼容 Unix 时间戳格式 ID（如 `1518770660439-4636190af475`），新版 Unsplash 短 slug ID（如 `Ojbgdr5RPcI`）会返回 404 | 使用时间戳格式的 ID，通过 web 搜索或 API 查找并 curl 验证 `images.unsplash.com/photo-{id}` 返回 200 后再使用；`source.unsplash.com` 已废弃（503），不可用 |
+| 多页面背景图重复 | 每次新建页面直接复用之前的 photo ID | 每个页面使用独立的 Unsplash 照片，确保 photo ID 不与其他页面重复 |
 
 ### 分享卡片
 
