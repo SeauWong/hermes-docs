@@ -1,0 +1,440 @@
+---
+layout: false
+isPage: true
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GEPA — Reflective Prompt Evolution</title>
+    <meta name="description" content="GEPA: Reflective prompt evolution can outperform reinforcement learning. 35x fewer rollouts than GRPO. ICLR 2026 Oral." />
+    <meta property="og:title" content="GEPA — Reflective Prompt Evolution" />
+    <meta property="og:description" content="Natural language reflection beats policy gradients. Up to 35x fewer rollouts than GRPO, +13% over MIPROv2. ICLR 2026 Oral." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=600&q=80" />
+    <meta property="og:url" content="https://www.theoku.com/gepa/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GEPA — Reflective Prompt Evolution" />
+    <meta name="twitter:description" content="Natural language reflection beats policy gradients. 35x fewer rollouts than GRPO." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=600&q=80" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <style>
+      :root {
+        --black: #000000;
+        --white: #f0f0fa;
+        --ghost-bg: rgba(240, 240, 250, 0.1);
+        --ghost-border: rgba(240, 240, 250, 0.35);
+        --overlay: rgba(0, 0, 0, 0.65);
+      }
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: 'D-DIN', 'Arial', 'Helvetica Neue', sans-serif;
+        color: var(--white);
+        background: var(--black);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* === Navigation === */
+      .nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 24px 8vw;
+        background: transparent;
+        transition: background 0.3s;
+      }
+      .nav.scrolled { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
+      .nav-logo {
+        font-weight: 700; font-size: 20px; letter-spacing: 3px;
+        color: var(--white); text-decoration: none;
+      }
+      .nav-links { display: flex; gap: 28px; list-style: none; }
+      .nav-links a {
+        color: var(--white); text-decoration: none;
+        font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+        transition: opacity 0.3s;
+      }
+      .nav-links a:hover { opacity: 0.6; }
+
+      /* === Sections === */
+      .section {
+        min-height: 100vh;
+        display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+        padding: 100px 8vw;
+        position: relative;
+        background-size: cover; background-position: center; background-attachment: fixed;
+      }
+      .section::before {
+        content: ''; position: absolute; inset: 0;
+        background: var(--overlay); z-index: 0;
+      }
+      .section > * { position: relative; z-index: 1; }
+
+      /* === Typography === */
+      h1 { font-size: clamp(36px, 6vw, 72px); font-weight: 700; line-height: 1.05; margin-bottom: 16px; letter-spacing: 1.5px; }
+      h2 { font-size: clamp(28px, 4.5vw, 54px); font-weight: 700; margin-bottom: 24px; letter-spacing: 1.2px; }
+      h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; letter-spacing: 1.5px; color: rgba(240,240,250,0.7); }
+      p, li { font-size: 14px; line-height: 1.7; margin-bottom: 14px; max-width: 800px; text-transform: none; letter-spacing: 0.3px; }
+      code {
+        background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px;
+        font-family: 'Courier New', monospace; font-size: 13px; color: var(--white);
+      }
+
+      /* === Components === */
+      .formula-block {
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(240,240,250,0.15);
+        padding: 28px 24px; border-radius: 4px; margin: 28px 0;
+        max-width: 750px; text-align: center;
+        overflow-x: auto;
+      }
+      .formula-label { font-size: 11px; color: rgba(240,240,250,0.5); margin-bottom: 12px; letter-spacing: 1.5px; text-transform: uppercase; }
+      .katex { font-size: 1.1em; color: var(--white); }
+
+      table { width: 100%; border-collapse: collapse; margin: 24px 0; max-width: 900px; }
+      th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(240,240,250,0.15); font-size: 13px; }
+      th { font-weight: 700; letter-spacing: 1.2px; color: rgba(240,240,250,0.8); }
+      td { color: var(--white); }
+
+      .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px; width: 100%; max-width: 1200px; margin-top: 24px; }
+      .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; width: 100%; max-width: 1200px; margin-top: 24px; }
+      .card { padding: 24px; border: 1px solid rgba(240,240,250,0.15); border-radius: 4px; background: rgba(0,0,0,0.3); }
+      .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+      .card p { font-size: 13px; color: rgba(240,240,250,0.7); margin: 0; }
+
+      .arch-img {
+        width: 100%; max-width: 1000px; border-radius: 4px; margin: 32px 0;
+        border: 1px solid rgba(240,240,250,0.1);
+        background: #0a0a0c;
+        padding: 16px;
+      }
+      .step-list { list-style: none; padding: 0; counter-reset: step; }
+      .step-list li { counter-increment: step; padding: 16px 0; border-bottom: 1px solid rgba(240,240,250,0.1); display: flex; gap: 16px; align-items: baseline; }
+      .step-list li::before { content: counter(step, decimal-leading-zero); font-weight: 700; font-size: 14px; color: rgba(240,240,250,0.5); min-width: 28px; }
+
+      .footer { padding: 60px 8vw; text-align: center; border-top: 1px solid rgba(240,240,250,0.1); }
+      .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 14px 32px;
+        background: var(--ghost-bg);
+        border: 1px solid var(--ghost-border);
+        border-radius: 32px;
+        color: var(--white);
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 12px; font-weight: 700;
+        transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      }
+      .btn:hover { background: rgba(240,240,250,0.2); border-color: var(--white); transform: translateY(-2px); }
+      .footer a { color: rgba(240,240,250,0.6); text-decoration: none; margin: 0 16px; font-size: 12px; letter-spacing: 1px; transition: color 0.3s; }
+      .footer a:hover { color: var(--white); }
+
+      @media (max-width: 768px) {
+        .section { padding: 80px 5vw; background-attachment: scroll; }
+        .nav { padding: 20px 5vw; }
+        .nav-links { display: none; }
+        .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        h1 { font-size: 36px; }
+        h2 { font-size: 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+      <a href="/" class="nav-logo">GEPA</a>
+      <ul class="nav-links">
+        <li><a href="#insight">Insight</a></li>
+        <li><a href="#concepts">Concepts</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#algorithm">Algorithm</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#boundaries">Boundaries</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=1920&q=80');">
+      <h3>UC Berkeley · Stanford · MIT · Notre Dame · ICLR 2026 Oral</h3>
+      <h1>GEPA — REFLECTIVE PROMPT EVOLUTION</h1>
+      <p style="font-size: 16px; max-width: 700px; margin-top: 16px;">Natural language reflection beats policy gradients. Up to 35x fewer rollouts than GRPO. +13% over MIPROv2. Works on closed-source models out of the box.</p>
+    </section>
+
+    <!-- Core Insight -->
+    <section class="section" id="insight" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80');">
+      <h2>The Core Insight</h2>
+      <p style="font-size: clamp(20px, 3vw, 32px); max-width: 900px;">
+        Language is a richer learning medium than scalar rewards. A single rollout's natural language trace — reasoning chains, tool outputs, compiler errors — gives an LLM enough diagnostic signal to mutate its own prompts effectively.
+      </p>
+      <p style="max-width: 800px;">
+        RL methods like GRPO require tens of thousands of rollouts because they learn only from sparse scalar rewards at the end of each rollout. GEPA instead treats every execution trace as a rich, interpretable learning signal — the same kind a human engineer would use when debugging a system. One rollout's feedback can produce a large behavioral update.
+      </p>
+    </section>
+
+    <!-- Core Concepts -->
+    <section class="section" id="concepts" style="background-image: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Three Pillars</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h4>(Re)flection</h4>
+          <p>An LLM reads the execution traces, tool outputs, and evaluation feedback (e.g. "compiler error: type mismatch on line 42"), diagnoses what went wrong, and proposes a revised prompt. The prompt update is natural language — interpretable, composable, and high-signal.</p>
+        </div>
+        <div class="card">
+          <h4>(Ge)netic</h4>
+          <p>Each new candidate inherits the accumulated "lessons" from its parent in an evolutionary tree. Unlike one-shot prompt optimization, GEPA builds knowledge across generations — descendant prompts carry forward strategies discovered by their ancestors.</p>
+        </div>
+        <div class="card">
+          <h4>(Pa)reto Sampling</h4>
+          <p>Instead of always mutating the single best candidate (which quickly stalls), GEPA maintains the top performer for each training instance, forming a Pareto frontier. It then stochastically samples from this frontier — balancing exploration of diverse strategies with exploitation of proven ones.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paradigm Shift -->
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Paradigm Shift</h2>
+      <div class="grid-2">
+        <div>
+          <h3>Reinforcement Learning (GRPO)</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li>× Learns from scalar rewards only</li>
+            <li>× Requires 24,000+ rollouts per task</li>
+            <li>× Needs weight updates (LoRA or full finetune)</li>
+            <li>× Cannot optimize closed-source models</li>
+            <li>× Aggregate gain: +3.68% (Qwen3 8B)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>GEPA (Natural Language Reflection)</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li>✓ Learns from full execution traces</li>
+            <li>✓ Optimal in 402–7,051 rollouts (up to 78x fewer)</li>
+            <li>✓ Prompt-only — no weight updates needed</li>
+            <li>✓ Works on GPT-4.1 Mini, Gemini, any API model</li>
+            <li>✓ Aggregate gain: +9.62% (Qwen3 8B)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="section" id="architecture" style="background-image: url('https://images.unsplash.com/photo-1518364538800-6bae3c2ea0f2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>System Architecture</h2>
+      <p>GEPA receives a compound AI system, a training set, a feedback function, and a rollout budget — then iteratively proposes better candidates.</p>
+      <div class="arch-img" style="max-width: 1000px; padding: 32px;">
+        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 24px;">
+          <div style="text-align: center; flex: 1; min-width: 180px;">
+            <h3 style="color: rgba(240,240,250,0.9);">Candidate Pool P</h3>
+            <p style="font-size: 12px; color: rgba(240,240,250,0.6);">All discovered prompts, each with ancestry and per-instance scores</p>
+          </div>
+          <div style="font-size: 32px; color: rgba(240,240,250,0.3);">&rarr;</div>
+          <div style="text-align: center; flex: 1; min-width: 180px;">
+            <h3 style="color: rgba(240,240,250,0.9);">Pareto Selection</h3>
+            <p style="font-size: 12px; color: rgba(240,240,250,0.6);">Stochastic sample from the Pareto frontier of best-per-per-instance candidates</p>
+          </div>
+          <div style="font-size: 32px; color: rgba(240,240,250,0.3);">&rarr;</div>
+          <div style="text-align: center; flex: 1; min-width: 180px;">
+            <h3 style="color: rgba(240,240,250,0.9);">Reflective Mutation</h3>
+            <p style="font-size: 12px; color: rgba(240,240,250,0.6);">LLM reflects on traces, proposes prompt update, tests on minibatch</p>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 800px;">
+        <h3>The Feedback Function</h3>
+        <p>GEPA extends the standard evaluation metric into a feedback function that returns both a numeric score and natural language traces — compiler errors, rubric failures, profiling data. These traces are the diagnostic signal that makes reflection possible.</p>
+      </div>
+    </section>
+
+    <!-- Algorithm -->
+    <section class="section" id="algorithm" style="background-image: url('https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Core Algorithm</h2>
+      <div style="max-width: 800px;">
+        <h3>Formula 1: Per-Instance Pareto Frontier</h3>
+        <div class="formula-block">
+          <div class="formula-label">Pareto Front Construction</div>
+          {`$$s^*[i] = \\max_{k} S_{\\mathcal{P}[k]}[i]$$`}
+        </div>
+        <p>For each training instance i, record the highest score achieved across all candidates in the pool. This defines the Pareto frontier — the set of "winning" strategies discovered so far.</p>
+
+        <h3>Formula 2: Selection Probability</h3>
+        <div class="formula-block">
+          <div class="formula-label">Weighted Sampling</div>
+          {`$$P(\\Phi_k) \\propto f[\\Phi_k] = |\\{i : \\Phi_k \\in \\hat{\\mathcal{P}}^*[i]\\}|$$`}
+        </div>
+        <p>Candidates are sampled proportionally to how many instances they lead on. A candidate that wins on 5 tasks is 5x more likely to be selected than one that wins on 1 — but the "narrow specialist" still gets explored.</p>
+
+        <h3>Formula 3: The Optimization Loop</h3>
+        <div class="formula-block">
+          <div class="formula-label">Full GEPA Algorithm</div>
+          {`$$\\Phi' = \\mathrm{Copy}(\\Phi_k) \\text{ with module } j \\text{ updated by } \\pi_j' \\leftarrow \\mathrm{Reflect}(\\text{traces, feedback})$$`}
+        </div>
+        <p>The LLM reflectively attributes successes or failures to prompt elements, proposes a revised instruction, and the new system is tested on the same minibatch. Only improvements are added to the candidate pool.</p>
+      </div>
+    </section>
+
+    <!-- Evolution Flow -->
+    <section class="section" id="evolution" style="background-image: url('https://images.unsplash.com/photo-1457364559154-aa2644600ebb?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Optimization Flow</h2>
+      <div style="max-width: 800px;">
+        <ol class="step-list">
+          <li><strong>Initialize</strong>: Candidate pool {`\\(\\mathcal{P} = [\\Phi]\\)`} with the base system. Split training data into feedback set and Pareto set.</li>
+          <li><strong>Pareto Selection</strong>: Build per-instance Pareto frontier from scores. Stochastically sample a candidate to mutate, weighted by how many instances it leads.</li>
+          <li><strong>Module Selection</strong>: Round-robin choose which module's prompt to update (ensures all modules get attention).</li>
+          <li><strong>Rollout &amp; Reflect</strong>: Run the candidate on a minibatch. Collect execution traces, tool outputs, and evaluation feedback. An LLM reflects on these and proposes a new prompt.</li>
+          <li><strong>Minibatch Test</strong>: If the new prompt improves on the minibatch, add it to the candidate pool with ancestry records, then evaluate on the full Pareto set.</li>
+          <li><strong>Repeat</strong> until budget {`\\(B\\)`} is exhausted. Return the candidate with the best aggregate score on the Pareto set.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Experiments -->
+    <section class="section" id="experiments" style="background-image: url('https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Experimental Setup</h2>
+      <div class="grid-2">
+        <div>
+          <h3>6 Benchmarks</h3>
+          <p>HotpotQA (multi-hop QA), IFBench (instruction following, OOD constraints), HoVer (retrieval-augmented verification), PUPA (privacy-aware delegation), AIME-2025 (math), LiveBench-Math (generalization).</p>
+        </div>
+        <div>
+          <h3>2 Models, 4 Optimizers</h3>
+          <p>Qwen3 8B (open) and GPT-4.1 Mini (closed-source). Compared against GRPO (24k rollouts with LoRA), MIPROv2, TextGrad, and Trace (OptoPrime).</p>
+        </div>
+      </div>
+      <p style="margin-top: 24px;"><strong>Hyperparameters</strong>: Minibatch size varies by task | Pareto set = validation split | Reflection LLM: GPT-o1 | <strong>Budget</strong>: GEPA uses 1.8k–7.1k rollouts vs GRPO's 24k</p>
+    </section>
+
+    <!-- Results -->
+    <section class="section" id="results" style="background-image: url('https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Results — Qwen3 8B</h2>
+      <div style="max-width: 900px; width: 100%;">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>HotpotQA</th><th>IFBench</th><th>Hover</th><th>PUPA</th><th>AIME</th><th>LiveBench</th><th>Aggregate</th><th>Rollouts</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Baseline</td><td>42.33</td><td>36.90</td><td>35.33</td><td>80.82</td><td>27.33</td><td>48.70</td><td>45.23</td><td>—</td></tr>
+            <tr><td>GRPO</td><td>43.33</td><td>35.88</td><td>38.67</td><td>86.66</td><td><strong>38.00</strong></td><td>51.26</td><td>48.91</td><td>24,000</td></tr>
+            <tr><td>MIPROv2</td><td>55.33</td><td>36.22</td><td>47.33</td><td>81.55</td><td>20.00</td><td>46.60</td><td>47.84</td><td>~</td></tr>
+            <tr><td><strong>GEPA</strong></td><td><strong>62.33</strong></td><td><strong>38.61</strong></td><td><strong>52.33</strong></td><td><strong>91.85</strong></td><td>32.00</td><td><strong>51.95</strong></td><td><strong>54.85</strong></td><td>1.8k–7.1k</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 16px;">
+          <strong>Key takeaway</strong>: GEPA's +9.62% aggregate improvement (vs GRPO's +3.68%) was achieved using just 1.8k–7.1k rollouts — up to 78x fewer than GRPO's 24,000.
+          The sample efficiency comes from natural language feedback providing a richer learning signal per rollout than scalar rewards.
+        </p>
+      </div>
+
+      <h2 style="margin-top: 48px;">Results — GPT-4.1 Mini</h2>
+      <div style="max-width: 900px; width: 100%;">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>HotpotQA</th><th>IFBench</th><th>Hover</th><th>PUPA</th><th>AIME</th><th>LiveBench</th><th>Aggregate</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Baseline</td><td>38.00</td><td>47.79</td><td>46.33</td><td>78.57</td><td>49.33</td><td>58.20</td><td>53.03</td></tr>
+            <tr><td>MIPROv2</td><td>58.00</td><td>49.15</td><td>48.33</td><td>83.37</td><td>51.33</td><td>61.84</td><td>58.67</td></tr>
+            <tr><td>TextGrad</td><td>62.33</td><td>48.64</td><td>47.67</td><td>85.68</td><td>46.67</td><td>63.84</td><td>59.14</td></tr>
+            <tr><td><strong>GEPA+Merge</strong></td><td>65.67</td><td><strong>55.95</strong></td><td><strong>56.67</strong></td><td><strong>96.46</strong></td><td><strong>59.33</strong></td><td><strong>64.13</strong></td><td><strong>66.36</strong></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 16px;">
+          <strong>Key takeaway</strong>: GEPA+Merge achieves +13.33% aggregate gain, more than doubling MIPROv2's +5.64%.
+          On GPT-4.1 Mini, GEPA produces prompts up to 9.2x shorter than MIPROv2's prompts — reducing API costs and latency.
+        </p>
+      </div>
+
+      <h2 style="margin-top: 48px;">Cross-Model Transfer</h2>
+      <div style="max-width: 800px;">
+        <p>GEPA-Qwen-Opt: prompts optimized entirely on the weaker Qwen3 8B, then evaluated on GPT-4.1 Mini without modification.</p>
+        <table>
+          <thead><tr><th>Method</th><th>Aggregate</th><th>Improvement</th></tr></thead>
+          <tbody>
+            <tr><td>MIPROv2 (optimized on GPT-4.1 Mini)</td><td>58.67</td><td>+5.64%</td></tr>
+            <tr><td>TextGrad (optimized on GPT-4.1 Mini)</td><td>59.14</td><td>+6.11%</td></tr>
+            <tr><td><strong>GEPA-Qwen-Opt (optimized on Qwen3 8B)</strong></td><td><strong>62.03</strong></td><td><strong>+9.00%</strong></td></tr>
+          </tbody>
+        </table>
+        <p>Prompts learned on a smaller, cheaper model transfer effectively to larger models — and outperform optimizers that tuned directly on the target model.</p>
+      </div>
+    </section>
+
+    <!-- Case Study -->
+    <section class="section" id="case-study" style="background-image: url('https://images.unsplash.com/photo-1454789548928-9efd52dc4031?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Case Study: Adversarial Prompt Search</h2>
+      <div style="max-width: 800px;">
+        <p>GEPA's reward signal can be inverted — instead of maximizing performance, it minimizes it. The result: a universal adversarial instruction that works across all queries.</p>
+        <ol class="step-list">
+          <li><strong>Setup</strong>: Start from a clean instruction prompt for AIME math problems. Target: GPT-5 Mini, AIME-2025 (30 problems, 5 runs each = 150 generations).</li>
+          <li><strong>Evolution</strong>: GEPA iteratively proposes prompt edits that add information (e.g., trivia) while keeping the task solvable. Goal: reduce pass@1.</li>
+          <li><strong>Result</strong>: A single adversarial instruction reduced pass@1 from 76% to 10% — a 3.8x increase in error rate. The injected distractors (trivia about honey, the Nile, dolphins) caused systematic misinterpretation of the formatting rule.</li>
+          <li><strong>Why it matters</strong>: This shows GEPA's reflection is powerful enough to find brittle instruction-following interactions automatically — producing reusable stress tests for model safety evaluation.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Boundaries -->
+    <section class="section" id="boundaries" style="background-image: url('https://images.unsplash.com/photo-1454789548928-9efd52dc4031?auto=format&fit=crop&w=1920&q=80');">
+      <h2>Boundaries &amp; Limitations</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h4>When It Stalls</h4>
+          <p>If the Pareto frontier converges to a single strategy and all mutations fail to improve, GEPA exhausts its budget without finding better prompts. This happens when the search space is too narrow or the feedback function provides weak diagnostic signal.</p>
+        </div>
+        <div class="card">
+          <h4>Merge Timing</h4>
+          <p>GEPA+Merge improves GPT-4.1 Mini but degrades Qwen3 8B on some tasks. The crossover (Merge) was invoked with the same hyperparameters for both models, which was suboptimal for Qwen. Merge works best only after sufficiently different lineages have evolved.</p>
+        </div>
+        <div class="card">
+          <h4>Validation Budget</h4>
+          <p>The majority of GEPA's rollout budget is spent evaluating candidates on the Pareto (validation) set for selection, not for learning. Further efficiency gains are possible by using a smaller validation set or dynamic subsets.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="https://arxiv.org/abs/2507.19457" target="_blank" class="btn">Read Paper</a>
+        <a href="https://github.com/gepa-ai/gepa" target="_blank" class="btn">View Code</a>
+        <a href="https://openreview.net/forum?id=RQm2KQTM5r" target="_blank" class="btn">OpenReview</a>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <a href="https://arxiv.org/abs/2507.19457" target="_blank">arXiv</a>
+        <a href="https://github.com/gepa-ai/gepa" target="_blank">GitHub</a>
+        <a href="https://huggingface.co/papers/2507.19457" target="_blank">Hugging Face</a>
+        <a href="https://openreview.net/forum?id=RQm2KQTM5r" target="_blank">OpenReview</a>
+      </div>
+      <p style="font-size: 11px; color: rgba(240,240,250,0.4); text-transform: uppercase; letter-spacing: 1px;">arXiv:2507.19457 — UC Berkeley et al., ICLR 2026 Oral</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // @ts-ignore
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+          if (!nav) return;
+          if (window.scrollY > 50) nav.classList.add('scrolled');
+          else nav.classList.remove('scrolled');
+        });
+      });
+    </script>
+  </body>
+</html>
