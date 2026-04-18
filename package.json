@@ -5,17 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.8",
-    "@astrojs/mdx": "^5.0.3",
-    "@astrojs/starlight": "^0.38.3",
-    "astro": "^6.1.5",
-    "mermaid": "^11.14.0",
-    "pagefind": "^1.5.2",
-    "typescript": "^5.9.3"
+    "astro": "^6.1.5"
   }
 }

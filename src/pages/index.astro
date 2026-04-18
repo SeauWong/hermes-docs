@@ -1,0 +1,106 @@
+---
+layout: false
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theo Notes</title>
+    <meta name="description" content="AI research papers and technical notes." />
+    <style>
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: 'D-DIN', 'Arial', 'Helvetica Neue', sans-serif;
+        color: #f0f0fa;
+        background: #000000;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* Hero */
+      .hero {
+        min-height: 100vh;
+        display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+        padding: 100px 8vw;
+        position: relative;
+        background-image: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80');
+        background-size: cover; background-position: center; background-attachment: fixed;
+      }
+      .hero::before {
+        content: ''; position: absolute; inset: 0;
+        background: rgba(0, 0, 0, 0.65); z-index: 0;
+      }
+      .hero > * { position: relative; z-index: 1; }
+
+      h1 { font-size: clamp(36px, 6vw, 72px); font-weight: 700; line-height: 1.05; margin-bottom: 16px; letter-spacing: 1.5px; }
+      p { font-size: 16px; max-width: 600px; margin-bottom: 14px; text-transform: none; letter-spacing: 0.3px; color: rgba(240,240,250,0.7); }
+
+      /* Links */
+      .links { display: flex; flex-direction: column; gap: 24px; margin-top: 48px; max-width: 900px; width: 100%; }
+      .link-card {
+        display: block; padding: 32px;
+        background: rgba(240, 240, 250, 0.05);
+        border: 1px solid rgba(240, 240, 250, 0.15);
+        border-radius: 4px;
+        text-decoration: none;
+        color: inherit;
+        transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      }
+      .link-card:hover {
+        background: rgba(240, 240, 250, 0.1);
+        border-color: rgba(240, 240, 250, 0.5);
+        transform: translateY(-2px);
+      }
+      .link-card h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1.5px; color: #f0f0fa; }
+      .link-card p { font-size: 13px; color: rgba(240,240,250,0.6); margin: 0; max-width: 700px; }
+      .link-tag {
+        display: inline-block; margin-top: 12px;
+        font-size: 10px; color: rgba(240,240,250,0.4);
+        letter-spacing: 1.5px;
+      }
+
+      /* Footer */
+      .footer { padding: 40px 8vw; text-align: center; border-top: 1px solid rgba(240,240,250,0.1); }
+      .footer p { font-size: 11px; color: rgba(240,240,250,0.4); text-transform: uppercase; letter-spacing: 1px; }
+
+      @media (max-width: 768px) {
+        .hero { padding: 80px 5vw; background-attachment: scroll; }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="hero">
+      <h1>THEO NOTES</h1>
+      <p>AI research papers, technical notes, and engineering experiments.</p>
+
+      <div class="links">
+        <a href="/gepa/" class="link-card">
+          <h3>GEPA — REFLECTIVE PROMPT EVOLUTION</h3>
+          <p>Natural language reflection beats policy gradients. Up to 35x fewer rollouts than GRPO. ICLR 2026 Oral.</p>
+          <span class="link-tag">arXiv:2507.19457 · UC Berkeley et al.</span>
+        </a>
+
+        <a href="/gea/" class="link-card">
+          <h3>GEA — GROUP-EVOLVING AGENTS</h3>
+          <p>Open-ended self-improvement via shared experience pools. SWE-bench 71.0%, Polyglot 88.3%.</p>
+          <span class="link-tag">arXiv:2602.04837 · UCSB · Eric AI Lab</span>
+        </a>
+
+        <a href="/gea-cn/" class="link-card">
+          <h3>GEA — 群体进化智能体（中文版）</h3>
+          <p>基于经验共享的开放式自我改进。SWE-bench 71.0%，Polyglot 88.3%。零额外推理成本匹配人工工程化系统。</p>
+          <span class="link-tag">arXiv:2602.04837 · 中文版</span>
+        </a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Papers converted to SpaceX-style landing pages using the arxiv-to-spacex-page skill.</p>
+    </footer>
+  </body>
+</html>
