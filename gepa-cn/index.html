@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GEPA — 反思式提示进化</title>
+    <meta name="description" content="GEPA：反思式提示进化可以超越强化学习。比 GRPO 少用 35 倍的 rollout。ICLR 2026 Oral。" />
+    <meta property="og:title" content="GEPA — 反思式提示进化" />
+    <meta property="og:description" content="自然语言反思超越策略梯度。比 GRPO 少用 35 倍的 rollout，超越 MIPROv2 13%。ICLR 2026 Oral。" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=600&q=80" />
+    <meta property="og:url" content="https://www.theoku.com/gepa-cn/" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="GEPA — 反思式提示进化" />
+    <meta name="twitter:description" content="自然语言反思超越策略梯度。比 GRPO 少用 35 倍的 rollout。" />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=600&q=80" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+    <style>
+      :root {
+        --black: #000000;
+        --white: #f0f0fa;
+        --ghost-bg: rgba(240, 240, 250, 0.1);
+        --ghost-border: rgba(240, 240, 250, 0.35);
+        --overlay: rgba(0, 0, 0, 0.65);
+      }
+      *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: 'D-DIN', 'Arial', 'PingFang SC', 'Noto Sans SC', sans-serif;
+        color: var(--white);
+        background: var(--black);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* === Navigation === */
+      .nav {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 24px 8vw;
+        background: transparent;
+        transition: background 0.3s;
+      }
+      .nav.scrolled { background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); }
+      .nav-logo {
+        font-weight: 700; font-size: 20px; letter-spacing: 3px;
+        color: var(--white); text-decoration: none;
+      }
+      .nav-links { display: flex; gap: 28px; list-style: none; }
+      .nav-links a {
+        color: var(--white); text-decoration: none;
+        font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
+        transition: opacity 0.3s;
+      }
+      .nav-links a:hover { opacity: 0.6; }
+
+      /* === Sections === */
+      .section {
+        min-height: 100vh;
+        display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+        padding: 100px 8vw;
+        position: relative;
+        background-size: cover; background-position: center; background-attachment: fixed;
+      }
+      .section::before {
+        content: ''; position: absolute; inset: 0;
+        background: var(--overlay); z-index: 0;
+      }
+      .section > * { position: relative; z-index: 1; }
+
+      /* === Typography === */
+      h1 { font-size: clamp(36px, 6vw, 72px); font-weight: 700; line-height: 1.05; margin-bottom: 16px; letter-spacing: 1.5px; }
+      h2 { font-size: clamp(28px, 4.5vw, 54px); font-weight: 700; margin-bottom: 24px; letter-spacing: 1.2px; }
+      h3 { font-size: 16px; font-weight: 700; margin-bottom: 10px; letter-spacing: 1.5px; color: rgba(240,240,250,0.7); }
+      p, li { font-size: 14px; line-height: 1.7; margin-bottom: 14px; max-width: 800px; text-transform: none; letter-spacing: 0.3px; }
+      code {
+        background: rgba(255,255,255,0.08); padding: 2px 6px; border-radius: 4px;
+        font-family: 'Courier New', monospace; font-size: 13px; color: var(--white);
+      }
+
+      /* === Components === */
+      .formula-block {
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(240,240,250,0.15);
+        padding: 28px 24px; border-radius: 4px; margin: 28px 0;
+        max-width: 750px; text-align: center;
+        overflow-x: auto;
+      }
+      .formula-label { font-size: 11px; color: rgba(240,240,250,0.5); margin-bottom: 12px; letter-spacing: 1.5px; text-transform: uppercase; }
+      .katex { font-size: 1.1em; color: var(--white); }
+
+      table { width: 100%; border-collapse: collapse; margin: 24px 0; max-width: 900px; }
+      th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid rgba(240,240,250,0.15); font-size: 13px; }
+      th { font-weight: 700; letter-spacing: 1.2px; color: rgba(240,240,250,0.8); }
+      td { color: var(--white); }
+
+      .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 32px; width: 100%; max-width: 1200px; margin-top: 24px; }
+      .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; width: 100%; max-width: 1200px; margin-top: 24px; }
+      .card { padding: 24px; border: 1px solid rgba(240,240,250,0.15); border-radius: 4px; background: rgba(0,0,0,0.3); }
+      .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 8px; letter-spacing: 1px; }
+      .card p { font-size: 13px; color: rgba(240,240,250,0.7); margin: 0; }
+
+      .arch-img {
+        width: 100%; max-width: 1000px; border-radius: 4px; margin: 32px 0;
+        border: 1px solid rgba(240,240,250,0.1);
+        background: #0a0a0c;
+        padding: 16px;
+      }
+      .step-list { list-style: none; padding: 0; counter-reset: step; }
+      .step-list li { counter-increment: step; padding: 16px 0; border-bottom: 1px solid rgba(240,240,250,0.1); display: flex; gap: 16px; align-items: baseline; }
+      .step-list li::before { content: counter(step, decimal-leading-zero); font-weight: 700; font-size: 14px; color: rgba(240,240,250,0.5); min-width: 28px; }
+
+      .footer { padding: 60px 8vw; text-align: center; border-top: 1px solid rgba(240,240,250,0.1); }
+      .footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 24px; }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        padding: 14px 32px;
+        background: var(--ghost-bg);
+        border: 1px solid var(--ghost-border);
+        border-radius: 32px;
+        color: var(--white);
+        text-decoration: none;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 12px; font-weight: 700;
+        transition: background 0.3s, border-color 0.3s, transform 0.2s;
+      }
+      .btn:hover { background: rgba(240,240,250,0.2); border-color: var(--white); transform: translateY(-2px); }
+      .footer a { color: rgba(240,240,250,0.6); text-decoration: none; margin: 0 16px; font-size: 12px; letter-spacing: 1px; transition: color 0.3s; }
+      .footer a:hover { color: var(--white); }
+
+      @media (max-width: 768px) {
+        .section { padding: 80px 5vw; background-attachment: scroll; }
+        .nav { padding: 20px 5vw; }
+        .nav-links { display: none; }
+        .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        h1 { font-size: 36px; }
+        h2 { font-size: 28px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+      <a href="/" class="nav-logo">GEPA</a>
+      <ul class="nav-links">
+        <li><a href="#insight">洞察</a></li>
+        <li><a href="#concepts">概念</a></li>
+        <li><a href="#architecture">架构</a></li>
+        <li><a href="#algorithm">算法</a></li>
+        <li><a href="#results">结果</a></li>
+        <li><a href="#boundaries">边界</a></li>
+      </ul>
+    </nav>
+
+    <!-- Hero -->
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=1920&q=80');">
+      <h3>UC Berkeley · Stanford · MIT · ICLR 2026 Oral</h3>
+      <h1>GEPA — 反思式提示进化</h1>
+      <p style="font-size: 16px; max-width: 700px; margin-top: 16px;">自然语言反思超越策略梯度。比 GRPO 少用 35 倍的 rollout。超越 MIPROv2 13%。原生支持闭源模型。</p>
+    </section>
+
+    <!-- Core Insight -->
+    <section class="section" id="insight" style="background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80');">
+      <h2>核心洞察</h2>
+      <p style="font-size: clamp(20px, 3vw, 32px); max-width: 900px;">
+        语言是比标量奖励更丰富的学习媒介。一次 rollout 产生的自然语言轨迹——推理链、工具输出、编译器报错——已经包含了足够的诊断信号，让 LLM 能有效修改自己的提示词。
+      </p>
+      <p style="max-width: 800px;">
+        以 GRPO 为代表的强化学习方法需要数万次 rollout，因为它们只能从每次 rollout 结束时的稀疏标量奖励中学习。GEPA 则把每一次执行轨迹当作可解释的学习信号——就像人类工程师调试系统时做的那样。一次 rollout 的反馈就能产生巨大的行为更新。
+      </p>
+    </section>
+
+    <!-- Core Concepts -->
+    <section class="section" id="concepts" style="background-image: url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1920&q=80');">
+      <h2>三大支柱</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h4>（Re）反思</h4>
+          <p>LLM 读取执行轨迹、工具输出和评估反馈（例如"编译器错误：第 42 行类型不匹配"），诊断问题所在，并提出修改后的提示词。提示词的更新是自然语言——可解释、可组合、高信号。</p>
+        </div>
+        <div class="card">
+          <h4>（Ge）遗传</h4>
+          <p>每个新候选都从父代继承积累下来的"经验教训"，形成一棵进化树。不同于一次性提示优化，GEPA 跨代积累知识——子代提示携带祖先发现的策略。</p>
+        </div>
+        <div class="card">
+          <h4>（Pa）Pareto 采样</h4>
+          <p>不总是变异最优候选（那样很快会停滞）。GEPA 为每个训练实例维护最佳候选，构成 Pareto 前沿，然后随机采样——平衡探索新策略和利用已验证策略。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paradigm Shift -->
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=1920&q=80');">
+      <h2>范式转换</h2>
+      <div class="grid-2">
+        <div>
+          <h3>强化学习（GRPO）</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li>× 只从标量奖励学习</li>
+            <li>× 每个任务需要 24,000+ rollout</li>
+            <li>× 需要权重更新（LoRA 或全量微调）</li>
+            <li>× 无法优化闭源模型</li>
+            <li>× 聚合提升：+3.68%（Qwen3 8B）</li>
+          </ul>
+        </div>
+        <div>
+          <h3>GEPA（自然语言反思）</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li>✓ 从完整执行轨迹学习</li>
+            <li>✓ 402–7,051 rollout 达到最优（最多少 78 倍）</li>
+            <li>✓ 仅提示词优化——无需权重更新</li>
+            <li>✓ 支持 GPT-4.1 Mini、Gemini 等任何 API 模型</li>
+            <li>✓ 聚合提升：+9.62%（Qwen3 8B）</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture -->
+    <section class="section" id="architecture" style="background-image: url('https://images.unsplash.com/photo-1518364538800-6bae3c2ea0f2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>系统架构</h2>
+      <p>GEPA 接收一个复合 AI 系统、训练集、反馈函数和 rollout 预算，然后迭代地提出更好的候选。</p>
+      <div class="arch-img" style="max-width: 1000px; padding: 32px;">
+        <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 24px;">
+          <div style="text-align: center; flex: 1; min-width: 180px;">
+            <h3 style="color: rgba(240,240,250,0.9);">候选池 P</h3>
+            <p style="font-size: 12px; color: rgba(240,240,250,0.6);">所有已发现的提示词，每个携带祖先关系和逐实例得分</p>
+          </div>
+          <div style="font-size: 32px; color: rgba(240,240,250,0.3);">&rarr;</div>
+          <div style="text-align: center; flex: 1; min-width: 180px;">
+            <h3 style="color: rgba(240,240,250,0.9);">Pareto 选择</h3>
+            <p style="font-size: 12px; color: rgba(240,240,250,0.6);">从 Pareto 前沿中随机采样最佳逐实例候选</p>
+          </div>
+          <div style="font-size: 32px; color: rgba(240,240,250,0.3);">&rarr;</div>
+          <div style="text-align: center; flex: 1; min-width: 180px;">
+            <h3 style="color: rgba(240,240,250,0.9);">反思式变异</h3>
+            <p style="font-size: 12px; color: rgba(240,240,250,0.6);">LLM 反思轨迹，提出提示词更新，在 minibatch 上测试</p>
+          </div>
+        </div>
+      </div>
+      <div style="max-width: 800px;">
+        <h3>反馈函数</h3>
+        <p>GEPA 将标准评估指标扩展为反馈函数，同时返回数值评分和自然语言轨迹——编译器错误、评分细则失败、性能分析数据。这些轨迹是反思之所以可能的诊断信号。</p>
+      </div>
+    </section>
+
+    <!-- Algorithm -->
+    <section class="section" id="algorithm" style="background-image: url('https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=1920&q=80');">
+      <h2>核心算法</h2>
+      <div style="max-width: 800px;">
+        <h3>公式 1：逐实例 Pareto 前沿</h3>
+        <div class="formula-block">
+          <div class="formula-label">Pareto 前沿构建</div>
+          {`$$s^*[i] = \\max_{k} S_{\\mathcal{P}[k]}[i]$$`}
+        </div>
+        <p>对每个训练实例 i，记录候选池中所有候选的最高得分。这定义了 Pareto 前沿——迄今为止发现的"获胜"策略集合。</p>
+
+        <h3>公式 2：选择概率</h3>
+        <div class="formula-block">
+          <div class="formula-label">加权随机采样</div>
+          {`$$P(\\Phi_k) \\propto f[\\Phi_k] = |\\{i : \\Phi_k \\in \\hat{\\mathcal{P}}^*[i]\\}|$$`}
+        </div>
+        <p>候选按"赢的次数"加权采样——在 5 个实例上领先的候选被选中的概率是在 1 个实例上领先的候选的 5 倍——但"窄领域专家"仍会被探索。</p>
+
+        <h3>公式 3：优化循环</h3>
+        <div class="formula-block">
+          <div class="formula-label">完整 GEPA 算法</div>
+          {`$$\\Phi' = \\mathrm{Copy}(\\Phi_k) \\text{ with module } j \\text{ updated by } \\pi_j' \\leftarrow \\mathrm{Reflect}(\\text{traces, feedback})$$`}
+        </div>
+        <p>LLM 反思性地归因成功或失败到提示词元素，提出新指令，然后在同一 minibatch 上测试。只有改进后的候选才加入候选池。</p>
+      </div>
+    </section>
+
+    <!-- Evolution Flow -->
+    <section class="section" id="evolution" style="background-image: url('https://images.unsplash.com/photo-1457364559154-aa2644600ebb?auto=format&fit=crop&w=1920&q=80');">
+      <h2>优化流程</h2>
+      <div style="max-width: 800px;">
+        <ol class="step-list">
+          <li><strong>初始化</strong>：候选池 {`\(\mathcal{P} = [\Phi]\)`} 包含基础系统。将训练数据分为反馈集和 Pareto 集。</li>
+          <li><strong>Pareto 选择</strong>：构建逐实例 Pareto 前沿。按"赢的次数"加权随机采样一个候选进行变异。</li>
+          <li><strong>模块选择</strong>：round-robin 选择要优化的模块（确保所有模块都得到更新）。</li>
+          <li><strong>Rollout 与反思</strong>：在 minibatch 上运行候选。收集执行轨迹、工具输出和评估反馈。LLM 反思这些并提出新提示词。</li>
+          <li><strong>Minibatch 测试</strong>：如果新提示词在 minibatch 上改进了，加入候选池并记录祖先关系，然后在完整 Pareto 集上评估。</li>
+          <li><strong>重复</strong>直到预算 {`\(B\)`} 耗尽。返回 Pareto 集上聚合得分最高的候选。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Experiments -->
+    <section class="section" id="experiments" style="background-image: url('https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>实验设置</h2>
+      <div class="grid-2">
+        <div>
+          <h3>6 个基准</h3>
+          <p>HotpotQA（多跳问答）、IFBench（指令遵循，OOD 约束）、HoVer（检索增强验证）、PUPA（隐私感知委托）、AIME-2025（数学）、LiveBench-Math（泛化能力）。</p>
+        </div>
+        <div>
+          <h3>2 个模型，4 个优化器</h3>
+          <p>Qwen3 8B（开源）和 GPT-4.1 Mini（闭源）。对比 GRPO（24k rollout + LoRA）、MIPROv2、TextGrad 和 Trace（OptoPrime）。</p>
+        </div>
+      </div>
+      <p style="margin-top: 24px;"><strong>超参数</strong>：Minibatch 大小因任务而异 | Pareto 集 = 验证集分割 | 反思 LLM：GPT-o1 | <strong>预算</strong>：GEPA 使用 1.8k–7.1k rollout vs GRPO 的 24k</p>
+    </section>
+
+    <!-- Results -->
+    <section class="section" id="results" style="background-image: url('https://images.unsplash.com/photo-1446776877081-d282a0f896e2?auto=format&fit=crop&w=1920&q=80');">
+      <h2>结果 — Qwen3 8B</h2>
+      <div style="max-width: 900px; width: 100%;">
+        <table>
+          <thead>
+            <tr><th>方法</th><th>HotpotQA</th><th>IFBench</th><th>Hover</th><th>PUPA</th><th>AIME</th><th>LiveBench</th><th>聚合</th><th>Rollouts</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>基线</td><td>42.33</td><td>36.90</td><td>35.33</td><td>80.82</td><td>27.33</td><td>48.70</td><td>45.23</td><td>—</td></tr>
+            <tr><td>GRPO</td><td>43.33</td><td>35.88</td><td>38.67</td><td>86.66</td><td><strong>38.00</strong></td><td>51.26</td><td>48.91</td><td>24,000</td></tr>
+            <tr><td>MIPROv2</td><td>55.33</td><td>36.22</td><td>47.33</td><td>81.55</td><td>20.00</td><td>46.60</td><td>47.84</td><td>~</td></tr>
+            <tr><td><strong>GEPA</strong></td><td><strong>62.33</strong></td><td><strong>38.61</strong></td><td><strong>52.33</strong></td><td><strong>91.85</strong></td><td>32.00</td><td><strong>51.95</strong></td><td><strong>54.85</strong></td><td>1.8k–7.1k</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 16px;">
+          <strong>关键结论</strong>：GEPA 的 +9.62% 聚合提升（GRPO 仅 +3.68%）只用了 1.8k–7.1k rollout——比 GRPO 的 24,000 少最多 78 倍。
+          样本效率来自自然语言反馈每次 rollout 提供比标量奖励更丰富的学习信号。
+        </p>
+      </div>
+
+      <h2 style="margin-top: 48px;">结果 — GPT-4.1 Mini</h2>
+      <div style="max-width: 900px; width: 100%;">
+        <table>
+          <thead>
+            <tr><th>方法</th><th>HotpotQA</th><th>IFBench</th><th>Hover</th><th>PUPA</th><th>AIME</th><th>LiveBench</th><th>聚合</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>基线</td><td>38.00</td><td>47.79</td><td>46.33</td><td>78.57</td><td>49.33</td><td>58.20</td><td>53.03</td></tr>
+            <tr><td>MIPROv2</td><td>58.00</td><td>49.15</td><td>48.33</td><td>83.37</td><td>51.33</td><td>61.84</td><td>58.67</td></tr>
+            <tr><td>TextGrad</td><td>62.33</td><td>48.64</td><td>47.67</td><td>85.68</td><td>46.67</td><td>63.84</td><td>59.14</td></tr>
+            <tr><td><strong>GEPA+Merge</strong></td><td>65.67</td><td><strong>55.95</strong></td><td><strong>56.67</strong></td><td><strong>96.46</strong></td><td><strong>59.33</strong></td><td><strong>64.13</strong></td><td><strong>66.36</strong></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top: 16px;">
+          <strong>关键结论</strong>：GEPA+Merge 实现 +13.33% 聚合提升，是 MIPROv2 的 +5.64% 的两倍多。
+          在 GPT-4.1 Mini 上，GEPA 生成的提示词比 MIPROv2 短 9.2 倍——降低 API 成本和延迟。
+        </p>
+      </div>
+
+      <h2 style="margin-top: 48px;">跨模型迁移</h2>
+      <div style="max-width: 800px;">
+        <p>GEPA-Qwen-Opt：在较弱的 Qwen3 8B 上优化的提示词，直接在 GPT-4.1 Mini 上评估，不做任何修改。</p>
+        <table>
+          <thead><tr><th>方法</th><th>聚合</th><th>提升</th></tr></thead>
+          <tbody>
+            <tr><td>MIPROv2（在 GPT-4.1 Mini 上优化）</td><td>58.67</td><td>+5.64%</td></tr>
+            <tr><td>TextGrad（在 GPT-4.1 Mini 上优化）</td><td>59.14</td><td>+6.11%</td></tr>
+            <tr><td><strong>GEPA-Qwen-Opt（在 Qwen3 8B 上优化）</strong></td><td><strong>62.03</strong></td><td><strong>+9.00%</strong></td></tr>
+          </tbody>
+        </table>
+        <p>在更小、更便宜的模型上学到的提示词能有效迁移到更大的模型——甚至超过直接在目标模型上优化的优化器。</p>
+      </div>
+    </section>
+
+    <!-- Case Study -->
+    <section class="section" id="case-study" style="background-image: url('https://images.unsplash.com/photo-1454789548928-9efd52dc4031?auto=format&fit=crop&w=1920&q=80');">
+      <h2>实战走一遍：对抗性提示搜索</h2>
+      <div style="max-width: 800px;">
+        <p>GEPA 的奖励信号可以反转——不是最大化性能，而是最小化它。结果：一个对所有查询都有效的通用对抗指令。</p>
+        <ol class="step-list">
+          <li><strong>设置</strong>：从 AIME 数学题的干净指令提示开始。目标：GPT-5 Mini，AIME-2025（30 题，每题 5 次 = 150 次生成）。</li>
+          <li><strong>进化</strong>：GEPA 迭代地提出添加信息（如冷知识）的提示编辑，同时保持任务可解。目标：降低 pass@1。</li>
+          <li><strong>结果</strong>：一条对抗指令将 pass@1 从 76% 降到 10%——错误率提升 3.8 倍。注入的干扰信息（蜂蜜不腐、尼罗河最长、海豚睁眼睡觉）导致模型系统性误解格式规则。</li>
+          <li><strong>为什么重要</strong>：这说明 GEPA 的反思能力足以自动发现指令遵循的脆弱交互——产生可复用的压力测试，用于模型安全评估。</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Boundaries -->
+    <section class="section" id="boundaries" style="background-image: url('https://images.unsplash.com/photo-1454789548928-9efd52dc4031?auto=format&fit=crop&w=1920&q=80');">
+      <h2>边界与限制</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h4>何时会停滞</h4>
+          <p>如果 Pareto 前沿收敛到单一策略且所有变异都无法改进，GEPA 会耗尽预算却找不到更好的提示。这发生在搜索空间太窄或反馈函数提供弱诊断信号时。</p>
+        </div>
+        <div class="card">
+          <h4>Merge 时机</h4>
+          <p>GEPA+Merge 提升 GPT-4.1 Mini 但在 Qwen3 8B 上某些任务反而下降。交叉操作（Merge）对两个模型用了相同的超参数，对 Qwen 来说不是最优。Merge 只在足够不同的进化分支出现后才最有效。</p>
+        </div>
+        <div class="card">
+          <h4>验证集预算</h4>
+          <p>GEPA 的大部分 rollout 预算花在 Pareto（验证）集上评估候选用于选择，而非用于学习。进一步用更小的验证集或动态子集可以获得更高的效率。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="https://arxiv.org/abs/2507.19457" target="_blank" class="btn">阅读论文</a>
+        <a href="https://github.com/gepa-ai/gepa" target="_blank" class="btn">查看代码</a>
+        <a href="https://openreview.net/forum?id=RQm2KQTM5r" target="_blank" class="btn">OpenReview</a>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <a href="https://arxiv.org/abs/2507.19457" target="_blank">arXiv</a>
+        <a href="https://github.com/gepa-ai/gepa" target="_blank">GitHub</a>
+        <a href="https://huggingface.co/papers/2507.19457" target="_blank">Hugging Face</a>
+        <a href="https://openreview.net/forum?id=RQm2KQTM5r" target="_blank">OpenReview</a>
+      </div>
+      <p style="font-size: 11px; color: rgba(240,240,250,0.4); text-transform: uppercase; letter-spacing: 1px;">arXiv:2507.19457 — UC Berkeley 等，ICLR 2026 Oral</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        // @ts-ignore
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '\\[', right: '\\]', display: true},
+            {left: '\\(', right: '\\)', display: false}
+          ],
+          throwOnError: false
+        });
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+          if (!nav) return;
+          if (window.scrollY > 50) nav.classList.add('scrolled');
+          else nav.classList.remove('scrolled');
+        });
+      });
+    </script>
+  </body>
+</html>
