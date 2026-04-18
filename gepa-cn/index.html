@@ -7,14 +7,14 @@
     <meta name="description" content="GEPA：反思式提示进化可以超越强化学习。比 GRPO 少用 35 倍的 rollout。ICLR 2026 Oral。" />
     <meta property="og:title" content="GEPA — 反思式提示进化" />
     <meta property="og:description" content="自然语言反思超越策略梯度。比 GRPO 少用 35 倍的 rollout，超越 MIPROv2 13%。ICLR 2026 Oral。" />
-    <meta property="og:image" content="https://images.unsplash.com/photo-635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80" />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80" />
     <meta property="og:url" content="https://www.theoku.com/gepa-cn/" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="zh_CN" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="GEPA — 反思式提示进化" />
     <meta name="twitter:description" content="自然语言反思超越策略梯度。比 GRPO 少用 35 倍的 rollout。" />
-    <meta name="twitter:image" content="https://images.unsplash.com/photo-635070041078-e363dbe005cb?auto=format&fit=crop&w=600&q=80" />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=600&q=80" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
     <style>
@@ -157,14 +157,14 @@
     </nav>
 
     <!-- Hero -->
-    <section class="section" style="background-image: url('https://images.unsplash.com/photo-635070041078-e363dbe005cb?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1920&q=80');">
       <h3>UC Berkeley · Stanford · MIT · ICLR 2026 Oral</h3>
       <h1>GEPA — 反思式提示进化</h1>
       <p style="font-size: 16px; max-width: 700px; margin-top: 16px;">自然语言反思超越策略梯度。比 GRPO 少用 35 倍的 rollout。超越 MIPROv2 13%。原生支持闭源模型。</p>
     </section>
 
     <!-- Core Insight -->
-    <section class="section" id="insight" style="background-image: url('https://images.unsplash.com/photo-Ojbgdr5RPcI?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="insight" style="background-image: url('https://images.unsplash.com/photo-1431818563807-927945852ab6?auto=format&fit=crop&w=1920&q=80');">
       <h2>核心洞察</h2>
       <p style="font-size: clamp(20px, 3vw, 32px); max-width: 900px;">
         语言是比标量奖励更丰富的学习媒介。一次 rollout 产生的自然语言轨迹——推理链、工具输出、编译器报错——已经包含了足够的诊断信号，让 LLM 能有效修改自己的提示词。
@@ -175,7 +175,7 @@
     </section>
 
     <!-- Core Concepts -->
-    <section class="section" id="concepts" style="background-image: url('https://images.unsplash.com/photo-srYFtK3ePLQ?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="concepts" style="background-image: url('https://images.unsplash.com/photo-1440635592348-167b1b30296f?auto=format&fit=crop&w=1920&q=80');">
       <h2>三大支柱</h2>
       <div class="grid-3">
         <div class="card">
@@ -194,7 +194,7 @@
     </section>
 
     <!-- Paradigm Shift -->
-    <section class="section" style="background-image: url('https://images.unsplash.com/photo-ZHJyKcwYpRU?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" style="background-image: url('https://images.unsplash.com/photo-1433190152045-5a94184895da?auto=format&fit=crop&w=1920&q=80');">
       <h2>范式转换</h2>
       <div class="grid-2">
         <div>
@@ -221,7 +221,7 @@
     </section>
 
     <!-- Architecture -->
-    <section class="section" id="architecture" style="background-image: url('https://images.unsplash.com/photo-UWMKm7K0dgo?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="architecture" style="background-image: url('https://images.unsplash.com/photo-1467173572719-f14b9fb86e5f?auto=format&fit=crop&w=1920&q=80');">
       <h2>系统架构</h2>
       <p>GEPA 接收一个复合 AI 系统、训练集、反馈函数和 rollout 预算，然后迭代地提出更好的候选。</p>
       <div class="arch-img" style="max-width: 1000px; padding: 32px;">
@@ -249,49 +249,49 @@
     </section>
 
     <!-- Algorithm -->
-    <section class="section" id="algorithm" style="background-image: url('https://images.unsplash.com/photo-3buRnjzCvZk?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="algorithm" style="background-image: url('https://images.unsplash.com/photo-1431538510849-b719825bf08b?auto=format&fit=crop&w=1920&q=80');">
       <h2>核心算法</h2>
       <div style="max-width: 800px;">
         <h3>公式 1：逐实例 Pareto 前沿</h3>
         <div class="formula-block">
           <div class="formula-label">Pareto 前沿构建</div>
-          {`$$s^*[i] = \\max_{k} S_{\\mathcal{P}[k]}[i]$$`}
+          $$s^*[i] = \max_{k} S_{\mathcal{P}[k]}[i]$$
         </div>
         <p>对每个训练实例 i，记录候选池中所有候选的最高得分。这定义了 Pareto 前沿——迄今为止发现的"获胜"策略集合。</p>
 
         <h3>公式 2：选择概率</h3>
         <div class="formula-block">
           <div class="formula-label">加权随机采样</div>
-          {`$$P(\\Phi_k) \\propto f[\\Phi_k] = |\\{i : \\Phi_k \\in \\hat{\\mathcal{P}}^*[i]\\}|$$`}
+          $$P(\Phi_k) \propto f[\Phi_k] = |\{i : \Phi_k \in \hat{\mathcal{P}}^*[i]\}|$$
         </div>
         <p>候选按"赢的次数"加权采样——在 5 个实例上领先的候选被选中的概率是在 1 个实例上领先的候选的 5 倍——但"窄领域专家"仍会被探索。</p>
 
         <h3>公式 3：优化循环</h3>
         <div class="formula-block">
           <div class="formula-label">完整 GEPA 算法</div>
-          {`$$\\Phi' = \\mathrm{Copy}(\\Phi_k) \\text{ with module } j \\text{ updated by } \\pi_j' \\leftarrow \\mathrm{Reflect}(\\text{traces, feedback})$$`}
+          $$\Phi' = \mathrm{Copy}(\Phi_k) \text{ with module } j \text{ updated by } \pi_j' \leftarrow \mathrm{Reflect}(\text{traces, feedback})$$
         </div>
         <p>LLM 反思性地归因成功或失败到提示词元素，提出新指令，然后在同一 minibatch 上测试。只有改进后的候选才加入候选池。</p>
       </div>
     </section>
 
     <!-- Evolution Flow -->
-    <section class="section" id="evolution" style="background-image: url('https://images.unsplash.com/photo-qW_OmkbDJVQ?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="evolution" style="background-image: url('https://images.unsplash.com/photo-1448960968772-b63b3f40dfc1?auto=format&fit=crop&w=1920&q=80');">
       <h2>优化流程</h2>
       <div style="max-width: 800px;">
         <ol class="step-list">
-          <li><strong>初始化</strong>：候选池 {`\(\mathcal{P} = [\Phi]\)`} 包含基础系统。将训练数据分为反馈集和 Pareto 集。</li>
+          <li><strong>初始化</strong>：候选池 \(\mathcal{P} = [\Phi]\) 包含基础系统。将训练数据分为反馈集和 Pareto 集。</li>
           <li><strong>Pareto 选择</strong>：构建逐实例 Pareto 前沿。按"赢的次数"加权随机采样一个候选进行变异。</li>
           <li><strong>模块选择</strong>：round-robin 选择要优化的模块（确保所有模块都得到更新）。</li>
           <li><strong>Rollout 与反思</strong>：在 minibatch 上运行候选。收集执行轨迹、工具输出和评估反馈。LLM 反思这些并提出新提示词。</li>
           <li><strong>Minibatch 测试</strong>：如果新提示词在 minibatch 上改进了，加入候选池并记录祖先关系，然后在完整 Pareto 集上评估。</li>
-          <li><strong>重复</strong>直到预算 {`\(B\)`} 耗尽。返回 Pareto 集上聚合得分最高的候选。</li>
+          <li><strong>重复</strong>直到预算 \(B\) 耗尽。返回 Pareto 集上聚合得分最高的候选。</li>
         </ol>
       </div>
     </section>
 
     <!-- Experiments -->
-    <section class="section" id="experiments" style="background-image: url('https://images.unsplash.com/photo-A9jp72Owzvs?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="experiments" style="background-image: url('https://images.unsplash.com/photo-1455620611406-966ca6889d80?auto=format&fit=crop&w=1920&q=80');">
       <h2>实验设置</h2>
       <div class="grid-2">
         <div>
@@ -307,7 +307,7 @@
     </section>
 
     <!-- Results -->
-    <section class="section" id="results" style="background-image: url('https://images.unsplash.com/photo-qV2xKnrSY6A?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="results" style="background-image: url('https://images.unsplash.com/photo-1463595373836-6e0b0a8ee322?auto=format&fit=crop&w=1920&q=80');">
       <h2>结果 — Qwen3 8B</h2>
       <div style="max-width: 900px; width: 100%;">
         <table>
@@ -362,7 +362,7 @@
     </section>
 
     <!-- Case Study -->
-    <section class="section" id="case-study" style="background-image: url('https://images.unsplash.com/photo-bGNVZnk9ymk?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="case-study" style="background-image: url('https://images.unsplash.com/photo-1447703693928-9cd89c8d3ac5?auto=format&fit=crop&w=1920&q=80');">
       <h2>实战走一遍：对抗性提示搜索</h2>
       <div style="max-width: 800px;">
         <p>GEPA 的奖励信号可以反转——不是最大化性能，而是最小化它。结果：一个对所有查询都有效的通用对抗指令。</p>
@@ -376,7 +376,7 @@
     </section>
 
     <!-- Boundaries -->
-    <section class="section" id="boundaries" style="background-image: url('https://images.unsplash.com/photo-HxLPptyNzOo?auto=format&fit=crop&w=1920&q=80');">
+    <section class="section" id="boundaries" style="background-image: url('https://images.unsplash.com/photo-1431057499046-ecd6e0f36ebe?auto=format&fit=crop&w=1920&q=80');">
       <h2>边界与限制</h2>
       <div class="grid-3">
         <div class="card">

@@ -256,21 +256,21 @@
         <h3>Formula 1: Per-Instance Pareto Frontier</h3>
         <div class="formula-block">
           <div class="formula-label">Pareto Front Construction</div>
-          {`$$s^*[i] = \\max_{k} S_{\\mathcal{P}[k]}[i]$$`}
+          $$s^*[i] = \max_{k} S_{\mathcal{P}[k]}[i]$$
         </div>
         <p>For each training instance i, record the highest score achieved across all candidates in the pool. This defines the Pareto frontier — the set of "winning" strategies discovered so far.</p>
 
         <h3>Formula 2: Selection Probability</h3>
         <div class="formula-block">
           <div class="formula-label">Weighted Sampling</div>
-          {`$$P(\\Phi_k) \\propto f[\\Phi_k] = |\\{i : \\Phi_k \\in \\hat{\\mathcal{P}}^*[i]\\}|$$`}
+          $$P(\Phi_k) \propto f[\Phi_k] = |\{i : \Phi_k \in \hat{\mathcal{P}}^*[i]\}|$$
         </div>
         <p>Candidates are sampled proportionally to how many instances they lead on. A candidate that wins on 5 tasks is 5x more likely to be selected than one that wins on 1 — but the "narrow specialist" still gets explored.</p>
 
         <h3>Formula 3: The Optimization Loop</h3>
         <div class="formula-block">
           <div class="formula-label">Full GEPA Algorithm</div>
-          {`$$\\Phi' = \\mathrm{Copy}(\\Phi_k) \\text{ with module } j \\text{ updated by } \\pi_j' \\leftarrow \\mathrm{Reflect}(\\text{traces, feedback})$$`}
+          $$\Phi' = \mathrm{Copy}(\Phi_k) \text{ with module } j \text{ updated by } \pi_j' \leftarrow \mathrm{Reflect}(\text{traces, feedback})$$
         </div>
         <p>The LLM reflectively attributes successes or failures to prompt elements, proposes a revised instruction, and the new system is tested on the same minibatch. Only improvements are added to the candidate pool.</p>
       </div>
@@ -281,12 +281,12 @@
       <h2>Optimization Flow</h2>
       <div style="max-width: 800px;">
         <ol class="step-list">
-          <li><strong>Initialize</strong>: Candidate pool {`\\(\\mathcal{P} = [\\Phi]\\)`} with the base system. Split training data into feedback set and Pareto set.</li>
+          <li><strong>Initialize</strong>: Candidate pool \(\mathcal{P} = [\Phi]\) with the base system. Split training data into feedback set and Pareto set.</li>
           <li><strong>Pareto Selection</strong>: Build per-instance Pareto frontier from scores. Stochastically sample a candidate to mutate, weighted by how many instances it leads.</li>
           <li><strong>Module Selection</strong>: Round-robin choose which module's prompt to update (ensures all modules get attention).</li>
           <li><strong>Rollout &amp; Reflect</strong>: Run the candidate on a minibatch. Collect execution traces, tool outputs, and evaluation feedback. An LLM reflects on these and proposes a new prompt.</li>
           <li><strong>Minibatch Test</strong>: If the new prompt improves on the minibatch, add it to the candidate pool with ancestry records, then evaluate on the full Pareto set.</li>
-          <li><strong>Repeat</strong> until budget {`\\(B\\)`} is exhausted. Return the candidate with the best aggregate score on the Pareto set.</li>
+          <li><strong>Repeat</strong> until budget \(B\) is exhausted. Return the candidate with the best aggregate score on the Pareto set.</li>
         </ol>
       </div>
     </section>
